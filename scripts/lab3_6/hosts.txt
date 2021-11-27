@@ -1,0 +1,7 @@
+# list of hosts to monitor
+www.mdh.se 
+localhost
+#login-s.idt.mdh.se 
+
+nonexistingmachine.se
+8.8.8.8
