@@ -7,8 +7,6 @@
 #
 #
 #
-
-
 netinfo(){
     while true; do
         clear
@@ -26,6 +24,9 @@ netinfo(){
         read -p '> ' selection
 
         if [[ "$selection" == "n" ]]; then
+        echo
+            echo "The computers name is: "
+            hostname
             echo
         elif [[ "$selection" == "i" ]]; then
             echo
@@ -45,15 +46,15 @@ netinfo(){
 }
 
 usermanage(){
-
+    echo
 }
 
 groupmanage(){
-
+    echo
 }
 
 dirmanage(){
-
+    echo
 }
 
 mainmenu(){
