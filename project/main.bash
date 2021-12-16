@@ -35,9 +35,11 @@ netinfo(){
             echo "Mac adddress:"
 	        ip addr | awk '/link\// && !/loopback/ {print $2} /: / && !/: lo/ {print $2}'
         elif [[ "$selection" == "g" ]]; then
-            echo
+            echo "Default gateway:"
+            ip r | awk '/default via / {print $3}'
         elif [[ "$selection" == "s" ]]; then
-            echo
+            echo "Device status:"
+            ip link | awk '/: / && !/: lo/ {print $2 $9}'
         elif [[ "$selection" == "e" ]]; then
             break
         else
@@ -81,7 +83,8 @@ usermanage(){
         read -p "Press enter to return to menu..." temp
     done
 }
-#hello
+
+
 groupmanage(){
     while true; do
         clear
