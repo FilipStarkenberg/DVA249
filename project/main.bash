@@ -50,7 +50,7 @@ netinfo(){
 usermanage(){
     echo
 }
-
+#hello
 groupmanage(){
     echo
 }
