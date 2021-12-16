@@ -29,9 +29,11 @@ netinfo(){
             hostname
             echo
         elif [[ "$selection" == "i" ]]; then
-            echo
+            echo "IP address:"
+	        ip addr | awk '/inet / && !/ lo/  {print $2} /: / && !/: lo/ {print $2}'
         elif [[ "$selection" == "m" ]]; then
-            echo
+            echo "Mac adddress:"
+	        ip addr | awk '/link\// && !/loopback/ {print $2} /: / && !/: lo/ {print $2}'
         elif [[ "$selection" == "g" ]]; then
             echo
         elif [[ "$selection" == "s" ]]; then
