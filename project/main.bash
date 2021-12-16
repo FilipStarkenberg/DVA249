@@ -48,15 +48,108 @@ netinfo(){
 }
 
 usermanage(){
-    echo
+    while true; do
+        clear
+        
+        echo "User management"
+        echo 
+        echo "What do you want to do?"
+        echo
+        echo "[x] xxx"
+        echo "[x] xxx"
+        echo "[x] xxx"
+        echo "[x] xxx"
+        echo "[x] xxx"
+        echo "[e] Go back. "
+        read -p '> ' selection
+
+        if [[ "$selection" == "x" ]]; then
+            echo
+        elif [[ "$selection" == "x" ]]; then
+            echo 
+        elif [[ "$selection" == "x" ]]; then
+            echo 
+        elif [[ "$selection" == "x" ]]; then
+            echo
+        elif [[ "$selection" == "x" ]]; then
+            echo
+        elif [[ "$selection" == "e" ]]; then
+            break
+        else
+            echo "invalid input."
+        fi
+        read -p "Press enter to return to menu..." temp
+    done
 }
 
 groupmanage(){
-    echo
+    while true; do
+        clear
+        
+        echo "Group management"
+        echo 
+        echo "What do you want to do?"
+        echo
+        echo "[x] xxx"
+        echo "[x] xxx"
+        echo "[x] xxx"
+        echo "[x] xxx"
+        echo "[x] xxx"
+        echo "[e] Go back. "
+        read -p '> ' selection
+
+        if [[ "$selection" == "x" ]]; then
+            echo
+        elif [[ "$selection" == "x" ]]; then
+            echo 
+        elif [[ "$selection" == "x" ]]; then
+            echo 
+        elif [[ "$selection" == "x" ]]; then
+            echo
+        elif [[ "$selection" == "x" ]]; then
+            echo
+        elif [[ "$selection" == "e" ]]; then
+            break
+        else
+            echo "invalid input."
+        fi
+        read -p "Press enter to return to menu..." temp
+    done
 }
 
 dirmanage(){
-    echo
+    while true; do
+        clear
+        
+        echo "Directory management"
+        echo 
+        echo "What do you want to do?"
+        echo
+        echo "[x] xxx"
+        echo "[x] xxx"
+        echo "[x] xxx"
+        echo "[x] xxx"
+        echo "[x] xxx"
+        echo "[e] Go back. "
+        read -p '> ' selection
+
+        if [[ "$selection" == "x" ]]; then
+            echo
+        elif [[ "$selection" == "x" ]]; then
+            echo 
+        elif [[ "$selection" == "x" ]]; then
+            echo 
+        elif [[ "$selection" == "x" ]]; then
+            echo
+        elif [[ "$selection" == "x" ]]; then
+            echo
+        elif [[ "$selection" == "e" ]]; then
+            break
+        else
+            echo "invalid input."
+        fi
+        read -p "Press enter to return to menu..." temp
+    done
 }
 
 mainmenu(){
