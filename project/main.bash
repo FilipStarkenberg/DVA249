@@ -49,6 +49,20 @@ netinfo(){
     done
 }
 
+selectuser(){
+    for (( i=0; i < ${#users[@]}; i++ )); do
+        echo "$i: ${users[i]}"
+    done
+    re='^[0-9]+$'
+    read -p 'Select or enter user name: ' selecteduser
+    echo $selecteduser
+    if [[ $selecteduser =~ $re ]]; then
+        selecteduser=${users[selecteduser]}
+    fi
+
+}
+
+
 usermanage(){
     while true; do
         clear
@@ -57,23 +71,31 @@ usermanage(){
         echo 
         echo "What do you want to do?"
         echo
-        echo "[x] xxx"
-        echo "[x] xxx"
-        echo "[x] xxx"
-        echo "[x] xxx"
-        echo "[x] xxx"
+        echo "[l] List login-users. "
+        echo "[i] Display user information. "
+        echo "[m] Modify user. "
+        echo "[r] Remove user. "
         echo "[e] Go back. "
         read -p '> ' selection
+        uidmin=$(grep "^UID_MIN" /etc/login.defs)
+        uidmax=$(grep "^UID_MAX" /etc/login.defs)
+        users=( $( awk -F':' -v "min=${uidmin##UID_MIN}" -v "max=${uidmax##UID_MAX}" '{ if ( $3 >= min && $3 <= max  && $7 != "/sbin/nologin" ) print $0 }' "/etc/passwd" | cut -d ":" -f 1) )
 
-        if [[ "$selection" == "x" ]]; then
-            echo
-        elif [[ "$selection" == "x" ]]; then
+
+        if [[ "$selection" == "l" ]]; then
+            for user in ${users[@]}; do
+                echo $user
+            done
+        elif [[ "$selection" == "i" ]]; then
+            selectuser
+            if [[ $selecteduser =~ '.' ]]; then
+                echo "invalid input."
+            else
+                echo "Selected: $selecteduser"
+            fi
+        elif [[ "$selection" == "m" ]]; then
             echo 
-        elif [[ "$selection" == "x" ]]; then
-            echo 
-        elif [[ "$selection" == "x" ]]; then
-            echo
-        elif [[ "$selection" == "x" ]]; then
+        elif [[ "$selection" == "r" ]]; then
             echo
         elif [[ "$selection" == "e" ]]; then
             break
