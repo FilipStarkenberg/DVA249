@@ -239,54 +239,56 @@ dirmanage(){
         echo
         echo "What do you want to do?"
         echo
-        echo "[1] Create Directory"
-        echo "[2] List Directory content"
-        echo "[3]List and change attribute of directory"
-        echo "[4]Delete Directory"
+        echo "[c] Create Directory"
+        echo "[l] List Directory content"
+        echo "[a] List and change attribute of directory"
+        echo "[d] Delete Directory"
         echo
-        echo -n "Please select number 1-4>"
+        echo -n " > "
         read selection
 
-        if [[ "$selection" == "1" ]]; then
-            echo -n "input name of the directory>"
+        if [[ "$selection" == "c" ]]; then
+            echo -n "input name of the new directory> "
             read DIRNAME
             mkdir $DIRNAME
             echo "Directory created!"
+            read -p "Press enter to continue>" temp
       
-        elif  [[ "$selection" == "2" ]]; then
+        elif  [[ "$selection" == "l" ]]; then
             echo -n "enter name of Directory to list>"
             read DIRNAME 
             echo "$DIRNAME content: "
-            cd $DIRNAME && ls
+            ls $DIRNAME
+            read -p "Press enter to continue>" temp
 
-        elif [[ "$selection" == "3" ]]; then
+        elif [[ "$selection" == "a" ]]; then
             echo "What do you want to list/change?"
             echo
-            echo "[1] Owner of directory"
-            echo "[2] Group of directory"
-            echo "[3] Permissions of Directory"
-            echo "[4] Sticky bit"
-            echo "[5] Setgid"
-            echo "[6] Last modified"
+            echo "[o] Owner of directory"
+            echo "[g] Group of directory"
+            echo "[p] Permissions of Directory"
+            echo "[s] Sticky bit"
+            echo "[g] Setgid"
+            echo "[m] Last modified"
             echo 
-            echo -n "Please select number 1-6>"
+            echo -n " > "
             read  Selection
-    fi
-            if [[ "$Selection" == "1" ]]; then
+    
+            if [[ "$Selection" == "o" ]]; then
                 echo -n "Please enter id of the new owner>"
                 read owner
                 echo -n "Enter directory name>"
                 read dirname
                 chown $owner $dirname
                 echo " Ownership changed!"
-            elif [[ "$Selection" == "2" ]]; then
+            elif [[ "$Selection" == "g" ]]; then
                 echo -n "Please enter new group name>"
                 read group
                 echo -n "Enter directory name>"
                 read dirname
                 chown :$group $dirname
                 echo "Group changed!"
-            elif [[ "$Selection" == "3" ]]; then
+            elif [[ "$Selection" == "p" ]]; then
                 echo -n "Enter directory name you want to change permissions for>"
                 read filename
                 echo "Change permissions:"
@@ -308,23 +310,27 @@ dirmanage(){
                 echo 
                 chmod $owner$group$others $name
                 echo "Permissions changed!"
-            elif [[ "$Selection" == "4" ]]; then
+                read -p "Press enter to continue>" temp
+
+            elif [[ "$Selection" == "s" ]]; then
                 echo
 
-            elif [[ "$Selection" == "5" ]]; then
+            elif [[ "$Selection" == "g" ]]; then
                 echo
-            elif [[ "$Selection" == "6" ]]; then
+            elif [[ "$Selection" == "m" ]]; then
                 echo
             else
                 echo "Invalid input!"
-            
+            fi
 
 
-        elif [[ "$selection" == "4" ]]; then
-            echo -n "Enter directory name to delete>"
-            read $DIRNAME
-            rmdir $DIRNAME
+        elif [[ "$selection" == "d" ]]; then
+            echo -n "Enter directory name to delete> "
+            read $dirname
+            rmdir $dirname
             echo " Directory deleted!"
+            read -p "Press enter to continue>" temp
+
         else
             echo "Invalid input!"
     fi
