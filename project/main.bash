@@ -88,7 +88,7 @@ usermanage(){
             done
         elif [[ "$selection" == "i" ]]; then
             selectuser
-            if [[ $selecteduser =~ '.' ]]; then
+            if [[ ! " ${users[*]} " =~ " ${selecteduser} " ]]; then
                 echo "invalid input."
             else
                 echo "Selected: $selecteduser"
