@@ -35,8 +35,67 @@ netinfo(){
             echo "Mac adddress:"
 	        ip addr | awk '/link\// && !/loopback/ {print $2} /: / && !/: lo/ {print $2}'
         elif [[ "$selection" == "g" ]]; then
-            echo
+            echo "Default gateway:"
+            ip r | awk '/default via / {print $3}'
         elif [[ "$selection" == "s" ]]; then
+            echo "Device status:"
+            ip link | awk '/: / && !/: lo/ {print $2 $9}'
+        elif [[ "$selection" == "e" ]]; then
+            break
+        else
+            echo "invalid input."
+        fi
+        read -p "Press enter to return to menu..." temp
+    done
+}
+
+selectuser(){
+    for (( i=0; i < ${#users[@]}; i++ )); do
+        echo "$i: ${users[i]}"
+    done
+    re='^[0-9]+$'
+    read -p 'Select or enter user name: ' selecteduser
+    echo $selecteduser
+    if [[ $selecteduser =~ $re ]]; then
+        selecteduser=${users[selecteduser]}
+    fi
+
+}
+
+
+usermanage(){
+    while true; do
+        clear
+        
+        echo "User management"
+        echo 
+        echo "What do you want to do?"
+        echo
+        echo "[l] List login-users. "
+        echo "[i] Display user information. "
+        echo "[m] Modify user. "
+        echo "[r] Remove user. "
+        echo "[e] Go back. "
+        read -p '> ' selection
+        uidmin=$(grep "^UID_MIN" /etc/login.defs)
+        uidmax=$(grep "^UID_MAX" /etc/login.defs)
+        users=( $( awk -F':' -v "min=${uidmin##UID_MIN}" -v "max=${uidmax##UID_MAX}" '{ if ( $3 >= min && $3 <= max  && $7 != "/sbin/nologin" ) print $0 }' "/etc/passwd" | cut -d ":" -f 1) )
+
+
+        if [[ "$selection" == "l" ]]; then
+            for user in ${users[@]}; do
+                echo $user
+            done
+        elif [[ "$selection" == "i" ]]; then
+            selectuser
+            if [[ $selecteduser =~ '.' ]]; then
+                echo "invalid input."
+            else
+                echo "Selected: $selecteduser"
+            fi
+        elif [[ "$selection" == "m" ]]; then
+            echo 
+        elif [[ "$selection" == "r" ]]; then
             echo
         elif [[ "$selection" == "e" ]]; then
             break
@@ -47,15 +106,44 @@ netinfo(){
     done
 }
 
-usermanage(){
-    echo
-}
-#hello
+
 groupmanage(){
-    echo
+    while true; do
+        clear
+        
+        echo "Group management"
+        echo 
+        echo "What do you want to do?"
+        echo
+        echo "[x] xxx"
+        echo "[x] xxx"
+        echo "[x] xxx"
+        echo "[x] xxx"
+        echo "[x] xxx"
+        echo "[e] Go back. "
+        read -p '> ' selection
+
+        if [[ "$selection" == "x" ]]; then
+            echo
+        elif [[ "$selection" == "x" ]]; then
+            echo 
+        elif [[ "$selection" == "x" ]]; then
+            echo 
+        elif [[ "$selection" == "x" ]]; then
+            echo
+        elif [[ "$selection" == "x" ]]; then
+            echo
+        elif [[ "$selection" == "e" ]]; then
+            break
+        else
+            echo "invalid input."
+        fi
+        read -p "Press enter to return to menu..." temp
+    done
 }
 
 dirmanage(){
+<<<<<<< HEAD
     echo "Directory management"
     echo
     echo "What do you want to do?"
@@ -139,6 +227,40 @@ echo "Permissions changed!"
     echo " Directory deleted!"
     else
     echo "invalid input!"
+=======
+    while true; do
+        clear
+        
+        echo "Directory management"
+        echo 
+        echo "What do you want to do?"
+        echo
+        echo "[x] xxx"
+        echo "[x] xxx"
+        echo "[x] xxx"
+        echo "[x] xxx"
+        echo "[x] xxx"
+        echo "[e] Go back. "
+        read -p '> ' selection
+
+        if [[ "$selection" == "x" ]]; then
+            echo
+        elif [[ "$selection" == "x" ]]; then
+            echo 
+        elif [[ "$selection" == "x" ]]; then
+            echo 
+        elif [[ "$selection" == "x" ]]; then
+            echo
+        elif [[ "$selection" == "x" ]]; then
+            echo
+        elif [[ "$selection" == "e" ]]; then
+            break
+        else
+            echo "invalid input."
+        fi
+        read -p "Press enter to return to menu..." temp
+    done
+>>>>>>> 9876e0eb0c156b8319152c649470e683abc25745
 }
 
 mainmenu(){
