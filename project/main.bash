@@ -4,9 +4,21 @@
 # Application name layout
 # Colors to sub menu names
 # Network is only one command. whoops...
-# 
+# Suppress command outputs
+# Add custom errors
 #
-#
+
+yesno(){
+    while true; do
+        read -p '> ' yn
+        case $yn in
+            [Yy]* ) return 1;;
+            [Nn]* ) return 0;;
+            * ) echo "Please answer yes or no.";;
+        esac
+    done
+}
+
 netinfo(){
     while true; do
         clear
@@ -77,6 +89,69 @@ printuserprops(){
     echo "Groups: ${groups[@]}"
 }
 
+deleteuser(){
+    echo "Are you sure you want to delete the user: $selecteduser?[y/n]"
+    yesno
+    if [[ $? -eq 1 ]]; then
+        echo "Deleting user: $selecteduser ..."
+        userdel -r $selecteduser &> /dev/null
+        errorcode=$?
+        if [[ $errorcode -eq 0 ]]; then
+            echo "User $selecteduser deleted."
+        else
+            #Handle errors here
+            echo "Error: $errorcode"
+        fi
+    fi
+}
+
+createuser(){
+    echo "New username: "
+    read -p '> ' newuser
+
+    echo "Shell (Leave empty to use /bin/bash):"
+    read -p '> ' shell
+    if [[ "$shell" == "" ]]; then
+        shell="/bin/bash"
+    else
+        if [[ ! -f "$shell" ]]; then
+            echo "Shell does not exist. "
+            return 1;
+        fi
+    fi
+    echo "Create home directory? [y/n]"
+    yesno
+    ch="--no-create-home"
+    if [[ $? -eq 1 ]]; then
+        echo "Enter absolute path or empty for default:"
+        read -p '> ' homedir
+        if [[ ! "$homedir" == "" ]]; then
+            if [[ ! -f "$homedir" ]]; then
+                echo "Directory does not exist. "
+                echo "Do you want to create it? [y/n]"
+                yesno
+                if [[ $? -eq 1 ]]; then
+                    mkdir -p $homedir &> /dev/null
+                    if [[ $? -ne 0 ]]; then
+                        echo "Failed to create directory. "
+                        return 2;
+                    fi
+                else
+                    return 3;
+                fi
+            fi
+        fi
+        ch="--home $homedir"
+    fi
+    echo "Comments: "
+    read -p '> ' comments
+
+    if ! [[ "$homedir" == "" ]]; then
+        adduser "$newuser --gecos $comments --shell $shell $ch"
+    else
+        adduser "$newuser --gecos $comments --shell $shell"
+    fi
+}
 
 usermanage(){
     while true; do
@@ -120,10 +195,22 @@ usermanage(){
             fi
         #Delete user
         elif [[ "$selection" == "d" ]]; then
-            echo
+            selectuser
+            if [[ ! " ${users[*]} " =~ " ${selecteduser} " ]]; then
+                echo "invalid input."
+            else
+                deleteuser
+            fi
         #Add user
         elif [[ "$selection" == "a" ]]; then
-            echo
+            createuser
+            errorcode=$?
+            if [[ $errorcode -eq 0 ]]; then
+                echo "User create sucsessfully. "
+            else
+                #Fix custom error message here
+                echo "Failed to create user. "
+            fi
         elif [[ "$selection" == "e" ]]; then
             break
         else
@@ -299,4 +386,8 @@ mainmenu(){
 }
 
 #Main entry point for the application
+if [ "$EUID" -ne 0 ]
+    then echo "Please run as root"
+    exit
+fi
 mainmenu
