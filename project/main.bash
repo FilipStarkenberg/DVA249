@@ -20,44 +20,21 @@ yesno(){
 }
 
 netinfo(){
-    while true; do
-        clear
-        
-        echo "Network information"
-        echo 
-        echo "What do you want to do?"
+    clear
+    echo "Network information"
+    echo 
+    echo "Computer name:  $HOSTNAME"
+    echo
+    devices=( $( ip link | awk '/: / && !/: lo/ {print $2}' | sed 'y/:/ /' ) )
+    echo "Network devices: "
+    echo
+    for device in ${devices[@]}; do
+        echo "$device: "
+        echo "  IP address:           $( ip addr show $device | awk '/inet / {print $2}' )"
+        echo "  Mac adddress:         $( ip addr show $device | awk '/link\// {print $2}' )"
+        echo "  Default gateway:      $( ip r | awk "/default via / && /$device/ {print \$3}" )"
+        echo "  Device status:        $( ip link show $device | awk '/: / && !/: lo/ {print $9}' )"
         echo
-        echo "[n] Display computer Name (host name)"
-        echo "[i] Display IP address. "
-        echo "[m] Display MAC address. "
-        echo "[g] Display Gateway. "
-        echo "[s] Display interface Status."
-        echo "[e] Go back. "
-        read -p '> ' selection
-
-        if [[ "$selection" == "n" ]]; then
-        echo
-            echo "The computers name is: "
-            hostname
-            echo
-        elif [[ "$selection" == "i" ]]; then
-            echo "IP address:"
-            ip addr | awk '/inet / && !/ lo/  {print $2} /: / && !/: lo/ {print $2}'
-        elif [[ "$selection" == "m" ]]; then
-            echo "Mac adddress:"
-            ip addr | awk '/link\// && !/loopback/ {print $2} /: / && !/: lo/ {print $2}'
-        elif [[ "$selection" == "g" ]]; then
-            echo "Default gateway:"
-            ip r | awk '/default via / {print $3}'
-        elif [[ "$selection" == "s" ]]; then
-            echo "Device status:"
-            ip link | awk '/: / && !/: lo/ {print $2 $9}'
-        elif [[ "$selection" == "e" ]]; then
-            break
-        else
-            echo "invalid input."
-        fi
-        read -p "Press enter to return to menu..." temp
     done
 }
 
@@ -216,7 +193,7 @@ usermanage(){
         else
             echo "invalid input."
         fi
-        read -p "Press enter to return to menu..." temp
+        read -p "Press enter to continue..." temp
     done
 }
 
@@ -252,7 +229,7 @@ groupmanage(){
         else
             echo "invalid input."
         fi
-        read -p "Press enter to return to menu..." temp
+        read -p "Press enter to continue..." temp
     done
 }
 
@@ -381,7 +358,7 @@ mainmenu(){
         else
             echo "invalid input."
         fi
-        read -p "Press enter to return to menu..." temp
+        read -p "Press enter to continue..." temp
     done
 }
 
