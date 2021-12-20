@@ -3,7 +3,6 @@
 #Todo:
 # Application name layout
 # Colors to sub menu names
-# Network is only one command. whoops...
 # Suppress command outputs
 # Add custom errors
 #
