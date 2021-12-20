@@ -239,13 +239,13 @@ dirmanage(){
         echo
         echo "What do you want to do?"
         echo
-        echo  "[1] Create Directory"
-        echo " [2] List Directory content"
-        echo " [3]List and change attribute of directory"
-        echo " [4]Delete Directory"
+        echo "[1] Create Directory"
+        echo "[2] List Directory content"
+        echo "[3]List and change attribute of directory"
+        echo "[4]Delete Directory"
         echo
         echo -n "Please select number 1-4>"
-        read -p  selection
+        read selection
 
         if [[ "$selection" == "1" ]]; then
             echo -n "input name of the directory>"
@@ -270,51 +270,54 @@ dirmanage(){
             echo "[6] Last modified"
             echo 
             echo -n "Please select number 1-6>"
-            read -p  selection
-fi
-        if [[ "$selection" == "1" ]]; then
-            echo -n "Please enter id of the new owner>"
-            read owner
-            echo -n "Enter directory name>"
-            read dirname
-            chown $owner $dirname
-            echo " Ownership changed!"
-        elif [[ "$selection" == "2" ]]; then
-            echo -n "Please enter new group name>"
-            read group
-            echo -n "Enter directory name>"
-            read dirname
-            chown :$group $dirname
-            echo "Group changed!"
-        elif [[ "$selection" == "3" ]]; then
-            echo -n "Enter directory name you want to change permissions for>"
-            read filename
-            echo "Change permissions:"
-            echo "for:"
-            echo "read only = 4"
-            echo "write only = 2"
-            echo "execute only = 1"
-            echo "read and execute = 5"
-            echo "read and write = 6"
-            echo "read, write and execute = 7"
-            echo
-            echo "Please enter permissions as a number for:"
-            echo -n "Owner/user>"
-            read owner
-            echo -n "Group>"
-            read group
-            echo -n "Others>"
-            read others
-            echo 
-            chmod $owner$group$others $name
-            echo "Permissions changed!"
-        elif [[ "$selection" == "4" ]]; then
-            echo
+            read  Selection
+    fi
+            if [[ "$Selection" == "1" ]]; then
+                echo -n "Please enter id of the new owner>"
+                read owner
+                echo -n "Enter directory name>"
+                read dirname
+                chown $owner $dirname
+                echo " Ownership changed!"
+            elif [[ "$Selection" == "2" ]]; then
+                echo -n "Please enter new group name>"
+                read group
+                echo -n "Enter directory name>"
+                read dirname
+                chown :$group $dirname
+                echo "Group changed!"
+            elif [[ "$Selection" == "3" ]]; then
+                echo -n "Enter directory name you want to change permissions for>"
+                read filename
+                echo "Change permissions:"
+                echo "for:"
+                echo "read only = 4"
+                echo "write only = 2"
+                echo "execute only = 1"
+                echo "read and execute = 5"
+                echo "read and write = 6"
+                echo "read, write and execute = 7"
+                echo
+                echo "Please enter permissions as a number for:"
+                echo -n "Owner/user>"
+                read owner
+                echo -n "Group>"
+                read group
+                echo -n "Others>"
+                read others
+                echo 
+                chmod $owner$group$others $name
+                echo "Permissions changed!"
+            elif [[ "$Selection" == "4" ]]; then
+                echo
 
-        elif [[ "$selection" == "5" ]]; then
-            echo
-        elif [[ "$selection" == "6" ]]; then
-            echo
+            elif [[ "$Selection" == "5" ]]; then
+                echo
+            elif [[ "$Selection" == "6" ]]; then
+                echo
+            else
+                echo "Invalid input!"
+            
 
 
         elif [[ "$selection" == "4" ]]; then
@@ -323,7 +326,7 @@ fi
             rmdir $DIRNAME
             echo " Directory deleted!"
         else
-            echo "invalid input!"
+            echo "Invalid input!"
     fi
     done
 }
