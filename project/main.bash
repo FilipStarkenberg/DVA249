@@ -120,8 +120,8 @@ createuser(){
         fi
     fi
     echo "Create home directory? [y/n]"
-    yesno
     ch="--no-create-home"
+    yesno
     if [[ $? -eq 1 ]]; then
         echo "Enter absolute path or empty for default:"
         read -p '> ' homedir
@@ -141,15 +141,15 @@ createuser(){
                 fi
             fi
         fi
-        ch="--home $homedir"
+        ch="--home "$homedir""
     fi
     echo "Comments: "
     read -p '> ' comments
 
     if ! [[ "$homedir" == "" ]]; then
-        adduser "$newuser --gecos $comments --shell $shell $ch"
+        adduser $newuser --gecos "$comments" --shell "$shell" $ch
     else
-        adduser "$newuser --gecos $comments --shell $shell"
+        adduser $newuser --gecos "$comments" --shell "$shell"
     fi
 }
 
