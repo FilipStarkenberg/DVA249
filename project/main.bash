@@ -143,7 +143,6 @@ groupmanage(){
 }
 
 dirmanage(){
-<<<<<<< HEAD
     echo "Directory management"
     echo
     echo "What do you want to do?"
@@ -227,40 +226,6 @@ echo "Permissions changed!"
     echo " Directory deleted!"
     else
     echo "invalid input!"
-=======
-    while true; do
-        clear
-        
-        echo "Directory management"
-        echo 
-        echo "What do you want to do?"
-        echo
-        echo "[x] xxx"
-        echo "[x] xxx"
-        echo "[x] xxx"
-        echo "[x] xxx"
-        echo "[x] xxx"
-        echo "[e] Go back. "
-        read -p '> ' selection
-
-        if [[ "$selection" == "x" ]]; then
-            echo
-        elif [[ "$selection" == "x" ]]; then
-            echo 
-        elif [[ "$selection" == "x" ]]; then
-            echo 
-        elif [[ "$selection" == "x" ]]; then
-            echo
-        elif [[ "$selection" == "x" ]]; then
-            echo
-        elif [[ "$selection" == "e" ]]; then
-            break
-        else
-            echo "invalid input."
-        fi
-        read -p "Press enter to return to menu..." temp
-    done
->>>>>>> 9876e0eb0c156b8319152c649470e683abc25745
 }
 
 mainmenu(){
