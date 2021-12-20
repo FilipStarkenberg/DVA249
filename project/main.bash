@@ -3,8 +3,8 @@
 #Todo:
 # Application name layout
 # Colors to sub menu names
+# Network is only one command. whoops...
 # 
-#
 #
 #
 netinfo(){
@@ -30,10 +30,10 @@ netinfo(){
             echo
         elif [[ "$selection" == "i" ]]; then
             echo "IP address:"
-	        ip addr | awk '/inet / && !/ lo/  {print $2} /: / && !/: lo/ {print $2}'
+            ip addr | awk '/inet / && !/ lo/  {print $2} /: / && !/: lo/ {print $2}'
         elif [[ "$selection" == "m" ]]; then
             echo "Mac adddress:"
-	        ip addr | awk '/link\// && !/loopback/ {print $2} /: / && !/: lo/ {print $2}'
+            ip addr | awk '/link\// && !/loopback/ {print $2} /: / && !/: lo/ {print $2}'
         elif [[ "$selection" == "g" ]]; then
             echo "Default gateway:"
             ip r | awk '/default via / {print $3}'
@@ -55,11 +55,26 @@ selectuser(){
     done
     re='^[0-9]+$'
     read -p 'Select or enter user name: ' selecteduser
-    echo $selecteduser
     if [[ $selecteduser =~ $re ]]; then
         selecteduser=${users[selecteduser]}
     fi
 
+}
+
+printuserprops(){
+    props=( $( cat "/etc/passwd" | grep $selecteduser | sed "y/:/\n/" ) )
+    groups=( $( cat /etc/group | grep $selecteduser | cut -d ":" -f 1 ) )
+    echo "User properties: $selecteduser"
+    echo
+    echo "User:           ${props[0]}"
+    echo "Password:       ${props[1]}"
+    echo "User ID:        ${props[2]}"
+    echo "Group ID:       ${props[3]}"
+    echo "Comment:        ${props[4]}"
+    echo "Directory:      ${props[5]}"
+    echo "Shell:          ${props[6]}"
+    echo
+    echo "Groups: ${groups[@]}"
 }
 
 
@@ -71,31 +86,43 @@ usermanage(){
         echo 
         echo "What do you want to do?"
         echo
+        echo "[a] Add user. "
         echo "[l] List login-users. "
-        echo "[i] Display user information. "
+        echo "[p] Display user properties. "
         echo "[m] Modify user. "
-        echo "[r] Remove user. "
+        echo "[d] Delete user. "
         echo "[e] Go back. "
         read -p '> ' selection
         uidmin=$(grep "^UID_MIN" /etc/login.defs)
         uidmax=$(grep "^UID_MAX" /etc/login.defs)
         users=( $( awk -F':' -v "min=${uidmin##UID_MIN}" -v "max=${uidmax##UID_MAX}" '{ if ( $3 >= min && $3 <= max  && $7 != "/sbin/nologin" ) print $0 }' "/etc/passwd" | cut -d ":" -f 1) )
 
-
+        #list users
         if [[ "$selection" == "l" ]]; then
             for user in ${users[@]}; do
                 echo $user
             done
-        elif [[ "$selection" == "i" ]]; then
+        #User properties
+        elif [[ "$selection" == "p" ]]; then
             selectuser
             if [[ ! " ${users[*]} " =~ " ${selecteduser} " ]]; then
                 echo "invalid input."
             else
-                echo "Selected: $selecteduser"
+                printuserprops
             fi
+        #Modify user
         elif [[ "$selection" == "m" ]]; then
-            echo 
-        elif [[ "$selection" == "r" ]]; then
+            selectuser
+            if [[ ! " ${users[*]} " =~ " ${selecteduser} " ]]; then
+                echo "invalid input."
+            else
+                echo
+            fi
+        #Delete user
+        elif [[ "$selection" == "d" ]]; then
+            echo
+        #Add user
+        elif [[ "$selection" == "a" ]]; then
             echo
         elif [[ "$selection" == "e" ]]; then
             break
