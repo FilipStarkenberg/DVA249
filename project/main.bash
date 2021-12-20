@@ -3,49 +3,37 @@
 #Todo:
 # Application name layout
 # Colors to sub menu names
-# 
+# Suppress command outputs
+# Add custom errors
 #
-#
-#
-netinfo(){
-    while true; do
-        clear
-        
-        echo "Network information"
-        echo 
-        echo "What do you want to do?"
-        echo
-        echo "[n] Display computer Name (host name)"
-        echo "[i] Display IP address. "
-        echo "[m] Display MAC address. "
-        echo "[g] Display Gateway. "
-        echo "[s] Display interface Status."
-        echo "[e] Go back. "
-        read -p '> ' selection
 
-        if [[ "$selection" == "n" ]]; then
+yesno(){
+    while true; do
+        read -p '> ' yn
+        case $yn in
+            [Yy]* ) return 1;;
+            [Nn]* ) return 0;;
+            * ) echo "Please answer yes or no.";;
+        esac
+    done
+}
+
+netinfo(){
+    clear
+    echo "Network information"
+    echo 
+    echo "Computer name:  $HOSTNAME"
+    echo
+    devices=( $( ip link | awk '/: / && !/: lo/ {print $2}' | sed 'y/:/ /' ) )
+    echo "Network devices: "
+    echo
+    for device in ${devices[@]}; do
+        echo "$device: "
+        echo "  IP address:           $( ip addr show $device | awk '/inet / {print $2}' )"
+        echo "  Mac adddress:         $( ip addr show $device | awk '/link\// {print $2}' )"
+        echo "  Default gateway:      $( ip r | awk "/default via / && /$device/ {print \$3}" )"
+        echo "  Device status:        $( ip link show $device | awk '/: / && !/: lo/ {print $9}' )"
         echo
-            echo "The computers name is: "
-            hostname
-            echo
-        elif [[ "$selection" == "i" ]]; then
-            echo "IP address:"
-	        ip addr | awk '/inet / && !/ lo/  {print $2} /: / && !/: lo/ {print $2}'
-        elif [[ "$selection" == "m" ]]; then
-            echo "Mac adddress:"
-	        ip addr | awk '/link\// && !/loopback/ {print $2} /: / && !/: lo/ {print $2}'
-        elif [[ "$selection" == "g" ]]; then
-            echo "Default gateway:"
-            ip r | awk '/default via / {print $3}'
-        elif [[ "$selection" == "s" ]]; then
-            echo "Device status:"
-            ip link | awk '/: / && !/: lo/ {print $2 $9}'
-        elif [[ "$selection" == "e" ]]; then
-            break
-        else
-            echo "invalid input."
-        fi
-        read -p "Press enter to return to menu..." temp
     done
 }
 
@@ -55,13 +43,91 @@ selectuser(){
     done
     re='^[0-9]+$'
     read -p 'Select or enter user name: ' selecteduser
-    echo $selecteduser
     if [[ $selecteduser =~ $re ]]; then
         selecteduser=${users[selecteduser]}
     fi
 
 }
 
+printuserprops(){
+    props=( $( cat "/etc/passwd" | grep $selecteduser | sed "y/:/\n/" ) )
+    groups=( $( cat /etc/group | grep $selecteduser | cut -d ":" -f 1 ) )
+    echo "User properties: $selecteduser"
+    echo
+    echo "User:           ${props[0]}"
+    echo "Password:       ${props[1]}"
+    echo "User ID:        ${props[2]}"
+    echo "Group ID:       ${props[3]}"
+    echo "Comment:        ${props[4]}"
+    echo "Directory:      ${props[5]}"
+    echo "Shell:          ${props[6]}"
+    echo
+    echo "Groups: ${groups[@]}"
+}
+
+deleteuser(){
+    echo "Are you sure you want to delete the user: $selecteduser?[y/n]"
+    yesno
+    if [[ $? -eq 1 ]]; then
+        echo "Deleting user: $selecteduser ..."
+        userdel -r $selecteduser &> /dev/null
+        errorcode=$?
+        if [[ $errorcode -eq 0 ]]; then
+            echo "User $selecteduser deleted."
+        else
+            #Handle errors here
+            echo "Error: $errorcode"
+        fi
+    fi
+}
+
+createuser(){
+    echo "New username: "
+    read -p '> ' newuser
+
+    echo "Shell (Leave empty to use /bin/bash):"
+    read -p '> ' shell
+    if [[ "$shell" == "" ]]; then
+        shell="/bin/bash"
+    else
+        if [[ ! -f "$shell" ]]; then
+            echo "Shell does not exist. "
+            return 1;
+        fi
+    fi
+    echo "Create home directory? [y/n]"
+    ch="--no-create-home"
+    yesno
+    if [[ $? -eq 1 ]]; then
+        echo "Enter absolute path or empty for default:"
+        read -p '> ' homedir
+        if [[ ! "$homedir" == "" ]]; then
+            if [[ ! -f "$homedir" ]]; then
+                echo "Directory does not exist. "
+                echo "Do you want to create it? [y/n]"
+                yesno
+                if [[ $? -eq 1 ]]; then
+                    mkdir -p $homedir &> /dev/null
+                    if [[ $? -ne 0 ]]; then
+                        echo "Failed to create directory. "
+                        return 2;
+                    fi
+                else
+                    return 3;
+                fi
+            fi
+        fi
+        ch="--home "$homedir""
+    fi
+    echo "Comments: "
+    read -p '> ' comments
+
+    if ! [[ "$homedir" == "" ]]; then
+        adduser $newuser --gecos "$comments" --shell "$shell" $ch
+    else
+        adduser $newuser --gecos "$comments" --shell "$shell"
+    fi
+}
 
 usermanage(){
     while true; do
@@ -71,38 +137,62 @@ usermanage(){
         echo 
         echo "What do you want to do?"
         echo
+        echo "[a] Add user. "
         echo "[l] List login-users. "
-        echo "[i] Display user information. "
+        echo "[p] Display user properties. "
         echo "[m] Modify user. "
-        echo "[r] Remove user. "
+        echo "[d] Delete user. "
         echo "[e] Go back. "
         read -p '> ' selection
         uidmin=$(grep "^UID_MIN" /etc/login.defs)
         uidmax=$(grep "^UID_MAX" /etc/login.defs)
         users=( $( awk -F':' -v "min=${uidmin##UID_MIN}" -v "max=${uidmax##UID_MAX}" '{ if ( $3 >= min && $3 <= max  && $7 != "/sbin/nologin" ) print $0 }' "/etc/passwd" | cut -d ":" -f 1) )
 
-
+        #list users
         if [[ "$selection" == "l" ]]; then
             for user in ${users[@]}; do
                 echo $user
             done
-        elif [[ "$selection" == "i" ]]; then
+        #User properties
+        elif [[ "$selection" == "p" ]]; then
             selectuser
             if [[ ! " ${users[*]} " =~ " ${selecteduser} " ]]; then
                 echo "invalid input."
             else
-                echo "Selected: $selecteduser"
+                printuserprops
             fi
+        #Modify user
         elif [[ "$selection" == "m" ]]; then
-            echo 
-        elif [[ "$selection" == "r" ]]; then
-            echo
+            selectuser
+            if [[ ! " ${users[*]} " =~ " ${selecteduser} " ]]; then
+                echo "invalid input."
+            else
+                echo
+            fi
+        #Delete user
+        elif [[ "$selection" == "d" ]]; then
+            selectuser
+            if [[ ! " ${users[*]} " =~ " ${selecteduser} " ]]; then
+                echo "invalid input."
+            else
+                deleteuser
+            fi
+        #Add user
+        elif [[ "$selection" == "a" ]]; then
+            createuser
+            errorcode=$?
+            if [[ $errorcode -eq 0 ]]; then
+                echo "User create sucsessfully. "
+            else
+                #Fix custom error message here
+                echo "Failed to create user. "
+            fi
         elif [[ "$selection" == "e" ]]; then
             break
         else
             echo "invalid input."
         fi
-        read -p "Press enter to return to menu..." temp
+        read -p "Press enter to continue..." temp
     done
 }
 
@@ -138,7 +228,7 @@ groupmanage(){
         else
             echo "invalid input."
         fi
-        read -p "Press enter to return to menu..." temp
+        read -p "Press enter to continue..." temp
     done
 }
 
@@ -266,9 +356,13 @@ mainmenu(){
         else
             echo "invalid input."
         fi
-        read -p "Press enter to return to menu..." temp
+        read -p "Press enter to continue..." temp
     done
 }
 
 #Main entry point for the application
+if [ "$EUID" -ne 0 ]
+    then echo "Please run as root"
+    exit
+fi
 mainmenu
