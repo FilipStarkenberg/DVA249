@@ -5,7 +5,8 @@
 # Colors to sub menu names
 # Suppress command outputs
 # Add custom errors
-#
+# Modify User
+# 
 
 yesno(){
     while true; do
@@ -50,19 +51,18 @@ selectuser(){
 }
 
 printuserprops(){
-    props=( $( cat "/etc/passwd" | grep $selecteduser | sed "y/:/\n/" ) )
     groups=( $( cat /etc/group | grep $selecteduser | cut -d ":" -f 1 ) )
     echo "User properties: $selecteduser"
     echo
-    echo "User:           ${props[0]}"
-    echo "Password:       ${props[1]}"
-    echo "User ID:        ${props[2]}"
-    echo "Group ID:       ${props[3]}"
-    echo "Comment:        ${props[4]}"
-    echo "Directory:      ${props[5]}"
-    echo "Shell:          ${props[6]}"
+    echo "User:           $( cat /etc/passwd | grep $selecteduser | cut -d ":" -f 1 )"
+    echo "Password:       $( cat /etc/passwd | grep $selecteduser | cut -d ":" -f 2 )"
+    echo "User ID:        $( cat /etc/passwd | grep $selecteduser | cut -d ":" -f 3 )"
+    echo "Group ID:       $( cat /etc/passwd | grep $selecteduser | cut -d ":" -f 4 )"
+    echo "Comment:        $( cat /etc/passwd | grep $selecteduser | cut -d ":" -f 5 )"
+    echo "Directory:      $( cat /etc/passwd | grep $selecteduser | cut -d ":" -f 6 )"
+    echo "Shell:          $( cat /etc/passwd | grep $selecteduser | cut -d ":" -f 7 )"
     echo
-    echo "Groups: ${groups[@]}"
+    echo "Groups:  ${groups[@]}"
 }
 
 deleteuser(){
@@ -150,12 +150,16 @@ usermanage(){
 
         #list users
         if [[ "$selection" == "l" ]]; then
+            clear
+            echo "Users: "
             for user in ${users[@]}; do
-                echo $user
+                echo "    $user"
             done
         #User properties
         elif [[ "$selection" == "p" ]]; then
+            clear
             selectuser
+            clear
             if [[ ! " ${users[*]} " =~ " ${selecteduser} " ]]; then
                 echo "invalid input."
             else
@@ -163,7 +167,9 @@ usermanage(){
             fi
         #Modify user
         elif [[ "$selection" == "m" ]]; then
+            clear
             selectuser
+            clear
             if [[ ! " ${users[*]} " =~ " ${selecteduser} " ]]; then
                 echo "invalid input."
             else
@@ -171,7 +177,9 @@ usermanage(){
             fi
         #Delete user
         elif [[ "$selection" == "d" ]]; then
+            clear
             selectuser
+            clear
             if [[ ! " ${users[*]} " =~ " ${selecteduser} " ]]; then
                 echo "invalid input."
             else
@@ -179,6 +187,7 @@ usermanage(){
             fi
         #Add user
         elif [[ "$selection" == "a" ]]; then
+            clear
             createuser
             errorcode=$?
             if [[ $errorcode -eq 0 ]]; then
@@ -253,7 +262,6 @@ dirmanage(){
             mkdir $DIRNAME
             echo "Directory created!"
             read -p "Press enter to continue>" temp
-      
         elif  [[ "$selection" == "l" ]]; then
             echo -n "enter name of Directory to list>"
             read DIRNAME 
@@ -365,7 +373,6 @@ mainmenu(){
         else
             echo "invalid input."
         fi
-        read -p "Press enter to continue..." temp
     done
 }
 
