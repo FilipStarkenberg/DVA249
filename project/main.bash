@@ -6,7 +6,7 @@
 # Suppress command outputs
 # Add custom errors
 # Modify User
-# 
+# More advanced options in change home directory. Remove old and move content
 
 yesno(){
     while true; do
@@ -36,6 +36,7 @@ netinfo(){
         echo "  Device status:        $( ip link show $device | awk '/: / && !/: lo/ {print $9}' )"
         echo
     done
+    read -p "Press enter to continue..." temp
 }
 
 selectuser(){
@@ -129,6 +130,86 @@ createuser(){
     fi
 }
 
+modifyuserid(){
+    echo "Enter new user ID. Must be between $uidmin and $uidmax. "
+    read -p '> ' newuserid
+    re='^[0-9]+$'
+    if ! [[ $newuserid =~ $re ]]; then
+        echo "Please enter an integer. "
+        return 1
+    fi
+    if [[ $newuserid < $uidmin || $newuserid > $uidmax ]]; then
+        echo "User ID must be between $uidmin and $uidmax. "
+        return 2
+    fi
+    existingids=( $( cat /etc/passwd | cut -d ":" -f 3 ) )
+    if [[ " ${existingids[*]} " =~ " ${newuserid} " ]]; then
+        echo "ID is alredy ocupied."
+    else
+        usermod -u "$newuserid" $selecteduser
+    fi
+}
+
+modifyuser(){
+    while true; do
+        clear
+        
+        echo "Currently modifying user: $selecteduser"
+        echo 
+        echo "What do you want to do?"
+        echo
+        echo "[u] Change username. "
+        echo "[p] Change password. "
+        echo "[i] Change user id. "
+        echo "[g] Change primary group id. "
+        echo "[c] Change comment. "
+        echo "[d] Change home directory. "
+        echo "[s] Change shell. "
+        echo "[e] Go back. "
+        read -p '> ' selection
+
+        if [[ "$selection" == "u" ]]; then
+            clear
+            echo "Enter new username: "
+            read -p '> ' newusername
+            usermod -l $newusername $selecteduser
+            selecteduser=$newusername
+        elif [[ "$selection" == "p" ]]; then
+            clear
+            passwd $selecteduser 
+        elif [[ "$selection" == "i" ]]; then
+            modifyuserid
+        elif [[ "$selection" == "g" ]]; then
+            echo "Enter new primary group: "
+            read -p '> ' newgroup
+            usermod -g "$newgroup" $selecteduser
+            echo "Return code: $?" #Remove this later and handle errors below
+        elif [[ "$selection" == "c" ]]; then
+            echo "Enter new comment: "
+            read -p '> ' newcomment
+            usermod -c "$newcomment" $selecteduser
+        elif [[ "$selection" == "d" ]]; then
+            echo "Enter new home directory. "
+            read -p '> ' newhome
+            usermod -d "$newhome" -m $selecteduser
+        elif [[ "$selection" == "s" ]]; then
+            echo "Enter path to new shell: "
+            read -p '> ' newshell
+            if [[ ! -f $newshell ]]; then
+                echo "'$newshell' does not exist. "
+            else
+                usermod -s "$newshell" $selecteduser
+            fi
+        elif [[ "$selection" == "e" ]]; then
+            break
+        else
+            echo "invalid input."
+        fi
+        echo
+        read -p "Press enter to continue..." temp
+    done
+}
+
 usermanage(){
     while true; do
         clear
@@ -143,11 +224,16 @@ usermanage(){
         echo "[m] Modify user. "
         echo "[d] Delete user. "
         echo "[e] Go back. "
-        read -p '> ' selection
+
         uidmin=$(grep "^UID_MIN" /etc/login.defs)
         uidmax=$(grep "^UID_MAX" /etc/login.defs)
-        users=( $( awk -F':' -v "min=${uidmin##UID_MIN}" -v "max=${uidmax##UID_MAX}" '{ if ( $3 >= min && $3 <= max  && $7 != "/sbin/nologin" ) print $0 }' "/etc/passwd" | cut -d ":" -f 1) )
+        uidmin=$( echo "${uidmin##UID_MIN}" | sed -e 's/^[[:space:]]*//' )
+        uidmax=$( echo "${uidmax##UID_MAX}" | sed -e 's/^[[:space:]]*//' )
 
+        users=( $( awk -F':' -v "min=$uidmin" -v "max=$uidmax" '{ if ( $3 >= min && $3 <= max  && $7 != "/sbin/nologin" ) print $0 }' "/etc/passwd" | cut -d ":" -f 1) )
+
+        read -p '> ' selection
+        
         #list users
         if [[ "$selection" == "l" ]]; then
             clear
@@ -161,7 +247,7 @@ usermanage(){
             selectuser
             clear
             if [[ ! " ${users[*]} " =~ " ${selecteduser} " ]]; then
-                echo "invalid input."
+                echo "Please select an existing user. "
             else
                 printuserprops
             fi
@@ -171,9 +257,9 @@ usermanage(){
             selectuser
             clear
             if [[ ! " ${users[*]} " =~ " ${selecteduser} " ]]; then
-                echo "invalid input."
+                echo "Please select an existing user. "
             else
-                echo
+                modifyuser
             fi
         #Delete user
         elif [[ "$selection" == "d" ]]; then
@@ -181,7 +267,7 @@ usermanage(){
             selectuser
             clear
             if [[ ! " ${users[*]} " =~ " ${selecteduser} " ]]; then
-                echo "invalid input."
+                echo "Please select an existing user."
             else
                 deleteuser
             fi
@@ -204,7 +290,6 @@ usermanage(){
         read -p "Press enter to continue..." temp
     done
 }
-
 
 groupmanage(){
     while true; do
