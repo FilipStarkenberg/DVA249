@@ -240,7 +240,7 @@ groupmanage(){
         read -p "Press enter to continue..." temp
     done
 }
-
+#hi
 dirmanage(){
     while true; do
         clear
