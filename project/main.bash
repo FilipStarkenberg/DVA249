@@ -48,7 +48,17 @@ selectuser(){
     if [[ $selecteduser =~ $re ]]; then
         selecteduser=${users[selecteduser]}
     fi
+}
 
+selectgroup(){
+    for (( i=0; i < ${#groups[@]}; i++ )); do
+        echo "$i: ${groups[i]}"
+    done
+    re='^[0-9]+$'
+    read -p 'Select or enter user name: ' selectedgroup
+    if [[ $selectedgroup =~ $re ]]; then
+        selectedgroup=${groups[selectedgroup]}
+    fi
 }
 
 printuserprops(){
@@ -299,23 +309,47 @@ groupmanage(){
         echo 
         echo "What do you want to do?"
         echo
-        echo "[x] xxx"
-        echo "[x] xxx"
-        echo "[x] xxx"
-        echo "[x] xxx"
-        echo "[x] xxx"
+        echo "[c] Ceate new group. "
+        echo "[l] List all groups, not system groups. "
+        echo "[v] List all users in a group. "
+        echo "[m] Modify group"
+        echo "[d] Delete group"
         echo "[e] Go back. "
+
+        gidmin=$(grep "^GID_MIN" /etc/login.defs)
+        gidmax=$(grep "^GID_MAX" /etc/login.defs)
+
+        gidmin=$( echo "${gidmin##GID_MIN}" | sed -e 's/^[[:space:]]*//' )
+        gidmax=$( echo "${gidmax##GID_MAX}" | sed -e 's/^[[:space:]]*//' )
+
+        groups=( $( awk -F':' -v "min=$gidmin" -v "max=$gidmax" '{ if ( $3 >= min && $3 <= max) print $0 }' "/etc/group" | cut -d ":" -f 1) )
+
         read -p '> ' selection
 
-        if [[ "$selection" == "x" ]]; then
+        if [[ "$selection" == "c" ]]; then
             echo
-        elif [[ "$selection" == "x" ]]; then
-            echo 
-        elif [[ "$selection" == "x" ]]; then
-            echo 
-        elif [[ "$selection" == "x" ]]; then
+        elif [[ "$selection" == "l" ]]; then
+            clear
+            echo "Groups: "
+            for group in ${groups[@]}; do
+                echo "    $group"
+            done 
+        elif [[ "$selection" == "v" ]]; then
+            clear
+            selectgroup
+            clear
+            groupid=$(cat /etc/group | awk "/$selectedgroup:/ {print}" | cut -d ":" -f 3)
+            usersingroup=( $( cat /etc/passwd | sed 'y/:/ /' | awk -v "gid=$groupid" '$4 == gid {print}' | cut -d ":" -f 1 ) )
+            usersingroup+=( $( cat /etc/group | awk "/$selectedgroup:/ {print}" | cut -d ":" -f 4 | sed 'y/,/ /' ) )
+            
+            echo "Users in group: $selectedgroup"
+            for user in ${usersingroup[@]}; do
+                echo "    $user"
+            done
             echo
-        elif [[ "$selection" == "x" ]]; then
+        elif [[ "$selection" == "m" ]]; then
+            echo
+        elif [[ "$selection" == "d" ]]; then
             echo
         elif [[ "$selection" == "e" ]]; then
             break
@@ -443,6 +477,9 @@ mainmenu(){
         echo "[g] Group management... "
         echo "[d] Directory management... "
         echo "[e] Exit."
+
+        
+
         read -p '> ' selection
 
         if [[ "$selection" == "n" ]]; then
