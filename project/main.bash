@@ -8,6 +8,15 @@
 # 
 # 
 
+header(){
+    clear
+    echo "########################################################"
+    echo "                  SYSTEM MANAGER v1.0.0                 "
+    echo "########################################################"
+    echo
+}
+
+
 yesno(){
     while true; do
         read -p '> ' yn
@@ -20,7 +29,7 @@ yesno(){
 }
 
 netinfo(){
-    clear
+    header
     echo "Network information"
     echo 
     echo "Computer name:  $HOSTNAME"
@@ -162,7 +171,7 @@ modifyuserid(){
 
 modifyuser(){
     while true; do
-        clear
+        header
         
         echo "Currently modifying user: $selecteduser"
         echo 
@@ -240,7 +249,7 @@ getusers(){
 
 usermanage(){
     while true; do
-        clear
+        header
         
         echo "User management"
         echo 
@@ -259,16 +268,16 @@ usermanage(){
         
         #list users
         if [[ "$selection" == "l" ]]; then
-            clear
+            header
             echo "Users: "
             for user in ${users[@]}; do
                 echo "    $user"
             done
         #User properties
         elif [[ "$selection" == "p" ]]; then
-            clear
+            header
             selectuser
-            clear
+            header
             if [[ ! " ${users[*]} " =~ " ${selecteduser} " ]]; then
                 echo "Please select an existing user. "
             else
@@ -276,9 +285,9 @@ usermanage(){
             fi
         #Modify user
         elif [[ "$selection" == "m" ]]; then
-            clear
+            header
             selectuser
-            clear
+            header
             if [[ ! " ${users[*]} " =~ " ${selecteduser} " ]]; then
                 echo "Please select an existing user. "
             else
@@ -286,9 +295,9 @@ usermanage(){
             fi
         #Delete user
         elif [[ "$selection" == "d" ]]; then
-            clear
+            header
             selectuser
-            clear
+            header
             if [[ ! " ${users[*]} " =~ " ${selecteduser} " ]]; then
                 echo "Please select an existing user."
             else
@@ -296,7 +305,7 @@ usermanage(){
             fi
         #Add user
         elif [[ "$selection" == "a" ]]; then
-            clear
+            header
             createuser
             errorcode=$?
             if [[ $errorcode -eq 0 ]]; then
@@ -333,7 +342,7 @@ deletegroup(){
 
 groupmanage(){
     while true; do
-        clear
+        header
         
         echo "Group management"
         echo 
@@ -366,16 +375,16 @@ groupmanage(){
             fi
         #List all groups
         elif [[ "$selection" == "l" ]]; then
-            clear
+            header
             echo "Groups: "
             for group in ${groups[@]}; do
                 echo "    $group"
             done 
         #List all users in a group
         elif [[ "$selection" == "v" ]]; then
-            clear
+            header
             selectgroup
-            clear
+            header
             groupid=$(cat /etc/group | awk "/$selectedgroup:/ {print}" | cut -d ":" -f 3)
             usersingroup=( $( cat /etc/passwd | sed 'y/:/ /' | awk -v "gid=$groupid" '$4 == gid {print}' | cut -d ":" -f 1 ) )
             usersingroup+=( $( cat /etc/group | awk "/$selectedgroup:/ {print}" | cut -d ":" -f 4 | sed 'y/,/ /' ) )
@@ -387,9 +396,9 @@ groupmanage(){
             echo
         #Add an existing user to an existing group
         elif [[ "$selection" == "a" ]]; then
-            clear
+            header
             selectgroup
-            clear
+            header
             selectuser
             adduser $selecteduser $selectedgroup &> /dev/null
             errorcode=$?
@@ -401,9 +410,9 @@ groupmanage(){
             fi
         #Remove existing user from existing group
         elif [[ "$selection" == "r" ]]; then
-            clear
+            header
             selectgroup
-            clear
+            header
             groupid=$(cat /etc/group | awk "/$selectedgroup:/ {print}" | cut -d ":" -f 3)
             usersingroup=( $( cat /etc/passwd | sed 'y/:/ /' | awk -v "gid=$groupid" '$4 == gid {print}' | cut -d ":" -f 1 ) )
             usersingroup+=( $( cat /etc/group | awk "/$selectedgroup:/ {print}" | cut -d ":" -f 4 | sed 'y/,/ /' ) )
@@ -418,9 +427,9 @@ groupmanage(){
                 echo "Error: $errorcode"
             fi
         elif [[ "$selection" == "d" ]]; then
-            clear
+            header
             selectgroup
-            clear
+            header
             if [[ ! " ${groups[*]} " =~ " ${selectedgroup} " ]]; then
                 echo "Please select an existing user."
             else
@@ -437,7 +446,7 @@ groupmanage(){
 #hi
 dirmanage(){
     while true; do
-        clear
+        header
         echo "Directory management"
         echo
         echo "What do you want to do?"
@@ -541,10 +550,7 @@ dirmanage(){
 
 mainmenu(){
     while true; do
-        clear
-
-        echo "Welcome to this application!"
-        echo 
+        header
         echo "What do you want to do?"
         echo
         echo "[n] Network information... "
