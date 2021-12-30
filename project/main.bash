@@ -5,8 +5,8 @@
 # Colors to sub menu names
 # Suppress command outputs
 # Add custom errors
-# Modify User
-# More advanced options in change home directory. Remove old and move content
+# 
+# 
 
 yesno(){
     while true; do
@@ -55,7 +55,7 @@ selectgroup(){
         echo "$i: ${groups[i]}"
     done
     re='^[0-9]+$'
-    read -p 'Select or enter user name: ' selectedgroup
+    read -p 'Select or enter group name: ' selectedgroup
     if [[ $selectedgroup =~ $re ]]; then
         selectedgroup=${groups[selectedgroup]}
     fi
@@ -220,6 +220,24 @@ modifyuser(){
     done
 }
 
+getgroups(){
+    gidmin=$(grep "^GID_MIN" /etc/login.defs)
+    gidmax=$(grep "^GID_MAX" /etc/login.defs)
+    gidmin=$( echo "${gidmin##GID_MIN}" | sed -e 's/^[[:space:]]*//' )
+    gidmax=$( echo "${gidmax##GID_MAX}" | sed -e 's/^[[:space:]]*//' )
+
+    groups=( $( awk -F':' -v "min=$gidmin" -v "max=$gidmax" '{ if ( $3 >= min && $3 <= max) print $0 }' "/etc/group" | cut -d ":" -f 1) )
+}
+
+getusers(){
+    uidmin=$(grep "^UID_MIN" /etc/login.defs)
+    uidmax=$(grep "^UID_MAX" /etc/login.defs)
+    uidmin=$( echo "${uidmin##UID_MIN}" | sed -e 's/^[[:space:]]*//' )
+    uidmax=$( echo "${uidmax##UID_MAX}" | sed -e 's/^[[:space:]]*//' )
+
+    users=( $( awk -F':' -v "min=$uidmin" -v "max=$uidmax" '{ if ( $3 >= min && $3 <= max  && $7 != "/sbin/nologin" ) print $0 }' "/etc/passwd" | cut -d ":" -f 1) )
+}
+
 usermanage(){
     while true; do
         clear
@@ -235,12 +253,7 @@ usermanage(){
         echo "[d] Delete user. "
         echo "[e] Go back. "
 
-        uidmin=$(grep "^UID_MIN" /etc/login.defs)
-        uidmax=$(grep "^UID_MAX" /etc/login.defs)
-        uidmin=$( echo "${uidmin##UID_MIN}" | sed -e 's/^[[:space:]]*//' )
-        uidmax=$( echo "${uidmax##UID_MAX}" | sed -e 's/^[[:space:]]*//' )
-
-        users=( $( awk -F':' -v "min=$uidmin" -v "max=$uidmax" '{ if ( $3 >= min && $3 <= max  && $7 != "/sbin/nologin" ) print $0 }' "/etc/passwd" | cut -d ":" -f 1) )
+        getusers
 
         read -p '> ' selection
         
@@ -301,6 +314,23 @@ usermanage(){
     done
 }
 
+deletegroup(){
+    echo "Are you sure you want to delete the group: $selectedgroup?[y/n]"
+    yesno
+    if [[ $? -eq 1 ]]; then
+        echo "Deleting group: $selectedgroup ..."
+        groupdel $selectedgroup &> /dev/null
+        errorcode=$?
+        if [[ $errorcode -eq 0 ]]; then
+            echo "Group $selectedgroup deleted."
+        else
+            #Handle errors here
+            echo "Error: $errorcode"
+        fi
+    fi
+}
+
+
 groupmanage(){
     while true; do
         clear
@@ -312,28 +342,36 @@ groupmanage(){
         echo "[c] Ceate new group. "
         echo "[l] List all groups, not system groups. "
         echo "[v] List all users in a group. "
-        echo "[m] Modify group"
-        echo "[d] Delete group"
+        echo "[a] Add user to group. "
+        echo "[r] Remove user from group. "
+        echo "[d] Delete group. "
         echo "[e] Go back. "
 
-        gidmin=$(grep "^GID_MIN" /etc/login.defs)
-        gidmax=$(grep "^GID_MAX" /etc/login.defs)
-
-        gidmin=$( echo "${gidmin##GID_MIN}" | sed -e 's/^[[:space:]]*//' )
-        gidmax=$( echo "${gidmax##GID_MAX}" | sed -e 's/^[[:space:]]*//' )
-
-        groups=( $( awk -F':' -v "min=$gidmin" -v "max=$gidmax" '{ if ( $3 >= min && $3 <= max) print $0 }' "/etc/group" | cut -d ":" -f 1) )
+        getusers
+        getgroups
 
         read -p '> ' selection
 
+        #Create new group
         if [[ "$selection" == "c" ]]; then
-            echo
+            echo "Enter new group name: "
+            read -p '> ' newgroupname
+            addgroup $newgroupname &> /dev/null
+            errorcode=$?
+            if [[ $errorcode -eq 0 ]]; then
+                echo "Group $newgroupname created."
+            else
+                #Handle errors here
+                echo "Error: $errorcode"
+            fi
+        #List all groups
         elif [[ "$selection" == "l" ]]; then
             clear
             echo "Groups: "
             for group in ${groups[@]}; do
                 echo "    $group"
             done 
+        #List all users in a group
         elif [[ "$selection" == "v" ]]; then
             clear
             selectgroup
@@ -347,10 +385,47 @@ groupmanage(){
                 echo "    $user"
             done
             echo
-        elif [[ "$selection" == "m" ]]; then
-            echo
+        #Add an existing user to an existing group
+        elif [[ "$selection" == "a" ]]; then
+            clear
+            selectgroup
+            clear
+            selectuser
+            adduser $selecteduser $selectedgroup &> /dev/null
+            errorcode=$?
+            if [[ $errorcode -eq 0 ]]; then
+                echo "$selecteduser added to $selectedgroup."
+            else
+                #Handle errors here
+                echo "Error: $errorcode"
+            fi
+        #Remove existing user from existing group
+        elif [[ "$selection" == "r" ]]; then
+            clear
+            selectgroup
+            clear
+            groupid=$(cat /etc/group | awk "/$selectedgroup:/ {print}" | cut -d ":" -f 3)
+            usersingroup=( $( cat /etc/passwd | sed 'y/:/ /' | awk -v "gid=$groupid" '$4 == gid {print}' | cut -d ":" -f 1 ) )
+            usersingroup+=( $( cat /etc/group | awk "/$selectedgroup:/ {print}" | cut -d ":" -f 4 | sed 'y/,/ /' ) )
+            users=( ${usersingroup[@]} )
+            selectuser
+            deluser $selecteduser $selectedgroup &> /dev/null
+            errorcode=$?
+            if [[ $errorcode -eq 0 ]]; then
+                echo "$selecteduser removed from $selectedgroup."
+            else
+                #Handle errors here
+                echo "Error: $errorcode"
+            fi
         elif [[ "$selection" == "d" ]]; then
-            echo
+            clear
+            selectgroup
+            clear
+            if [[ ! " ${groups[*]} " =~ " ${selectedgroup} " ]]; then
+                echo "Please select an existing user."
+            else
+                deletegroup
+            fi
         elif [[ "$selection" == "e" ]]; then
             break
         else
@@ -477,8 +552,6 @@ mainmenu(){
         echo "[g] Group management... "
         echo "[d] Directory management... "
         echo "[e] Exit."
-
-        
 
         read -p '> ' selection
 
