@@ -112,7 +112,7 @@ printuserprops(){
 }
 
 deleteuser(){
-    echo "Are you sure you want to delete the user: $selecteduser?[y/n]"
+    echo -e "Are you sure you want to delete the user: ${RED}$selecteduser${NC}?[y/n]"
     yesno
     if [[ $? -eq 1 ]]; then
         echo "Deleting user: $selecteduser ..."
@@ -191,11 +191,8 @@ createuser(){
     
     displaynewuserdata "$newuser" "$comments" "$homedir" "$shell"
 
-    if ! [[ "$homedir" == "" ]]; then
-        adduser $newuser --gecos "$comments" --shell "$shell" $ch
-    else
-        adduser $newuser --gecos "$comments" --shell "$shell"
-    fi
+    adduser $newuser --gecos "$comments" --shell "$shell" $ch
+
 }
 
 modifyuserid(){
@@ -217,7 +214,7 @@ modifyuserid(){
         usermod -u "$newuserid" $selecteduser &> /dev/null
         errorcode=$?
         if [[ $errorcode -eq 0 ]]; then
-            echo "User $selecteduser deleted."
+            echo -e "Chnged user ID for ${RED}$selecteduser${NC} to ${RED}$newuserid${NC}."
         else
             #Handle errors here
             echo "Error: $errorcode"
@@ -251,7 +248,7 @@ modifyuser(){
             usermod -l $newusername $selecteduser &> /dev/null
             errorcode=$?
             if [[ $errorcode -eq 0 ]]; then
-                echo "User $selecteduser deleted."
+                echo -e "Changed username form ${RED}$selecteduser${NC} to ${RED}$newusername${NC}. "
             else
                 #Handle errors here
                 echo "Error: $errorcode"
@@ -268,7 +265,7 @@ modifyuser(){
             usermod -g "$newgroup" $selecteduser &> /dev/null
             errorcode=$?
             if [[ $errorcode -eq 0 ]]; then
-                echo "User $selecteduser deleted."
+                echo -e "Switched primary group for ${RED}$selecteduser${NC} to ${RED}$newgroup${NC}."
             else
                 #Handle errors here
                 echo "Error: $errorcode"
@@ -279,7 +276,7 @@ modifyuser(){
             usermod -c "$newcomment" $selecteduser &> /dev/null
             errorcode=$?
             if [[ $errorcode -eq 0 ]]; then
-                echo "User $selecteduser deleted."
+                echo -e "Set comment for ${RED}$selecteduser${NC} to ${RED}$newcomment${NC}"
             else
                 #Handle errors here
                 echo "Error: $errorcode"
@@ -290,7 +287,7 @@ modifyuser(){
             usermod -d "$newhome" -m $selecteduser &> /dev/null
             errorcode=$?
             if [[ $errorcode -eq 0 ]]; then
-                echo "User $selecteduser deleted."
+                echo -e "Switched home for ${RED}$selecteduser${NC} to ${RED}$newhome${NC}."
             else
                 #Handle errors here
                 echo "Error: $errorcode"
@@ -304,7 +301,7 @@ modifyuser(){
                 usermod -s "$newshell" $selecteduser &> /dev/null
                 errorcode=$?
                 if [[ $errorcode -eq 0 ]]; then
-                    echo "User $selecteduser deleted."
+                    echo -e "Switched shell for ${RED}$selecteduser${NC} to ${RED}$newshell${NC}"
                 else
                     #Handle errors here
                     echo "Error: $errorcode"
@@ -359,9 +356,9 @@ usermanage(){
         #list users
         if [[ "$selection" == "l" ]]; then
             header
-            echo "Users: "
+            echo -e "${RED}Users:${NC}"
             for user in ${users[@]}; do
-                echo "    $user"
+                echo -e "    ${LIGHTRED}$user${NC}"
             done
             read -p "Press enter to continue..." temp
         #User properties
@@ -471,9 +468,9 @@ groupmanage(){
         #List all groups
         elif [[ "$selection" == "l" ]]; then
             header
-            echo "Groups: "
+            echo -e "${RED}Groups:${NC}"
             for group in ${groups[@]}; do
-                echo "    $group"
+                echo -e "    ${LIGHTRED}$group${NC}"
             done 
         #List all users in a group
         elif [[ "$selection" == "v" ]]; then
@@ -484,9 +481,9 @@ groupmanage(){
             usersingroup=( $( cat /etc/passwd | sed 'y/:/ /' | awk -v "gid=$groupid" '$4 == gid {print}' | cut -d ":" -f 1 ) )
             usersingroup+=( $( cat /etc/group | awk "/$selectedgroup:/ {print}" | cut -d ":" -f 4 | sed 'y/,/ /' ) )
             
-            echo "Users in group: $selectedgroup"
+            echo -e "Users in group ${RED}$selectedgroup${NC}:"
             for user in ${usersingroup[@]}; do
-                echo "    $user"
+                echo -e "    ${LIGHTRED}$user${NC}"
             done
             echo
         #Add an existing user to an existing group
