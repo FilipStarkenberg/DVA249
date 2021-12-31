@@ -1,20 +1,43 @@
 #!/bin/bash
 
 #Todo:
-# Application name layout
+#FIX SUCSESS TEXT
 # Colors to sub menu names
 # Add custom errors
-# 
-# 
+# fix go back in menues
+
+
+######### COLORS! ############
+
+BLACK='\033[0;30m'
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+ORANGE='\033[0;33m'
+BLUE='\033[0;34m'
+PURPLE='\033[0;35m'
+CYAN='\033[0;36m'
+LIGHTGRAY='\033[0;37m'
+DARKGRAY='\033[1;30m'
+LIGHTRED='\033[1;31m'
+LIGHTGREEN='\033[1;32m'
+YELLOW='\033[1;33m'
+LIGHTBLUE='\033[1;34m'
+LIGHTPURPLE='\033[1;35m'
+LIGHTCYAN='\033[1;36m'
+WHITE='\033[1;37m'
+NC='\033[0m'  # No Color
+
+##############################
+
 
 logpath="/var/log/systemmanager/"
 logfilename="output.log"
 
 header(){
     clear
-    echo "########################################################"
-    echo "                  SYSTEM MANAGER v1.0.0                 "
-    echo "########################################################"
+    echo -e "--------------------------------------------------------"
+    echo -e "                 ${YELLOW}SYSTEM MANAGER v1.0.0${NC}"
+    echo -e "--------------------------------------------------------"
     echo
 }
 
@@ -32,19 +55,19 @@ yesno(){
 
 netinfo(){
     header
-    echo "Network information"
+    echo -e "[${PURPLE}Main menu${NC}] > [${PURPLE}Network information${NC}]"
     echo 
-    echo "Computer name:  $HOSTNAME"
+    echo -e "Computer name:  ${CYAN}$HOSTNAME${NC}"
     echo
     devices=( $( ip link | awk '/: / && !/: lo/ {print $2}' | sed 'y/:/ /' ) )
-    echo "Network devices: "
+    echo "Network device(s): "
     echo
     for device in ${devices[@]}; do
-        echo "$device: "
-        echo "  IP address:           $( ip addr show $device | awk '/inet / {print $2}' )"
-        echo "  Mac adddress:         $( ip addr show $device | awk '/link\// {print $2}' )"
-        echo "  Default gateway:      $( ip r | awk "/default via / && /$device/ {print \$3}" )"
-        echo "  Device status:        $( ip link show $device | awk '/: / && !/: lo/ {print $9}' )"
+        echo -e "${RED}$device:${NC}"
+        echo -e "${LIGHTRED}  IP address:${NC}           $( ip addr show $device | awk '/inet / {print $2}' )"
+        echo -e "${LIGHTRED}  Mac adddress:${NC}         $( ip addr show $device | awk '/link\// {print $2}' )"
+        echo -e "${LIGHTRED}  Default gateway:${NC}      $( ip r | awk "/default via / && /$device/ {print \$3}" )"
+        echo -e "${LIGHTRED}  Device status:${NC}        $( ip link show $device | awk '/: / && !/: lo/ {print $9}' )"
         echo
     done
     read -p "Press enter to continue..." temp
@@ -52,7 +75,7 @@ netinfo(){
 
 selectuser(){
     for (( i=0; i < ${#users[@]}; i++ )); do
-        echo "$i: ${users[i]}"
+        echo -e "[${RED}$i${NC}] - ${users[i]}"
     done
     re='^[0-9]+$'
     read -p 'Select or enter user name: ' selecteduser
@@ -63,7 +86,7 @@ selectuser(){
 
 selectgroup(){
     for (( i=0; i < ${#groups[@]}; i++ )); do
-        echo "$i: ${groups[i]}"
+        echo -e "[${RED}$i${NC}] - ${groups[i]}"
     done
     re='^[0-9]+$'
     read -p 'Select or enter group name: ' selectedgroup
@@ -72,19 +95,20 @@ selectgroup(){
     fi
 }
 
+##Add color
 printuserprops(){
     groups=( $( cat /etc/group | grep $selecteduser | cut -d ":" -f 1 ) )
-    echo "User properties: $selecteduser"
+    echo -e "User properties: ${RED}$selecteduser${NC}"
     echo
-    echo "User:           $( cat /etc/passwd | grep $selecteduser | cut -d ":" -f 1 )"
-    echo "Password:       $( cat /etc/passwd | grep $selecteduser | cut -d ":" -f 2 )"
-    echo "User ID:        $( cat /etc/passwd | grep $selecteduser | cut -d ":" -f 3 )"
-    echo "Group ID:       $( cat /etc/passwd | grep $selecteduser | cut -d ":" -f 4 )"
-    echo "Comment:        $( cat /etc/passwd | grep $selecteduser | cut -d ":" -f 5 )"
-    echo "Directory:      $( cat /etc/passwd | grep $selecteduser | cut -d ":" -f 6 )"
-    echo "Shell:          $( cat /etc/passwd | grep $selecteduser | cut -d ":" -f 7 )"
+    echo -e "${RED}User name:${NC}      $( cat /etc/passwd | grep $selecteduser | cut -d ":" -f 1 )"
+    echo -e "${RED}Password:${NC}       $( cat /etc/passwd | grep $selecteduser | cut -d ":" -f 2 )"
+    echo -e "${RED}User ID:${NC}        $( cat /etc/passwd | grep $selecteduser | cut -d ":" -f 3 )"
+    echo -e "${RED}Group ID:${NC}       $( cat /etc/passwd | grep $selecteduser | cut -d ":" -f 4 )"
+    echo -e "${RED}Comment:${NC}        $( cat /etc/passwd | grep $selecteduser | cut -d ":" -f 5 )"
+    echo -e "${RED}Directory:${NC}      $( cat /etc/passwd | grep $selecteduser | cut -d ":" -f 6 )"
+    echo -e "${RED}Shell:${NC}          $( cat /etc/passwd | grep $selecteduser | cut -d ":" -f 7 )"
     echo
-    echo "Groups:  ${groups[@]}"
+    echo -e "Groups:  ${groups[@]}"
 }
 
 deleteuser(){
@@ -103,20 +127,28 @@ deleteuser(){
     fi
 }
 
+displaynewuserdata(){
+    echo "Creating new user"
+    clear
+    echo -e "${RED}User name:${NC}      $1"
+    echo -e "${RED}Comment:${NC}        $2"
+    echo -e "${RED}Directory:${NC}      $3"
+    echo -e "${RED}Shell:${NC}          $4"
+    echo
+}
+
 createuser(){
+    displaynewuserdata "" "" "" ""
     echo "New username: "
     read -p '> ' newuser
 
-    echo "Shell (Leave empty to use /bin/bash):"
-    read -p '> ' shell
-    if [[ "$shell" == "" ]]; then
-        shell="/bin/bash"
-    else
-        if [[ ! -f "$shell" ]]; then
-            echo "Shell does not exist. "
-            return 1;
-        fi
-    fi
+    displaynewuserdata "$newuser" "" "" ""
+
+    echo "Comment (gecos): "
+    read -p '> ' comments
+
+    displaynewuserdata "$newuser" "$comments" "" ""
+
     echo "Create home directory? [y/n]"
     ch="--no-create-home"
     yesno
@@ -138,30 +170,31 @@ createuser(){
                     return 3;
                 fi
             fi
+        else
+            homedir="/home/$newuser"
         fi
         ch="--home "$homedir""
     fi
-    echo "Comments: "
-    read -p '> ' comments
+
+    displaynewuserdata "$newuser" "$comments" "$homedir" ""
+
+    echo "Shell (Leave empty to use /bin/bash):"
+    read -p '> ' shell
+    if [[ "$shell" == "" ]]; then
+        shell="/bin/bash"
+    else
+        if [[ ! -f "$shell" ]]; then
+            echo "Shell does not exist. "
+            return 1;
+        fi
+    fi
+    
+    displaynewuserdata "$newuser" "$comments" "$homedir" "$shell"
 
     if ! [[ "$homedir" == "" ]]; then
-        adduser $newuser --gecos "$comments" --shell "$shell" $ch &> /dev/null
-        errorcode=$?
-        if [[ $errorcode -eq 0 ]]; then
-            echo "User $selecteduser deleted."
-        else
-            #Handle errors here
-            echo "Error: $errorcode"
-        fi
+        adduser $newuser --gecos "$comments" --shell "$shell" $ch
     else
-        adduser $newuser --gecos "$comments" --shell "$shell" &> /dev/null
-        errorcode=$?
-        if [[ $errorcode -eq 0 ]]; then
-            echo "User $selecteduser deleted."
-        else
-            #Handle errors here
-            echo "Error: $errorcode"
-        fi
+        adduser $newuser --gecos "$comments" --shell "$shell"
     fi
 }
 
@@ -195,19 +228,20 @@ modifyuserid(){
 modifyuser(){
     while true; do
         header
-        
-        echo "Currently modifying user: $selecteduser"
+        echo -e "[${PURPLE}Main menu${NC}] > [${PURPLE}User management${NC}] > [${PURPLE}Modify user${NC}]"
         echo 
-        echo "What do you want to do?"
+        echo -e "Currently modifying user: ${RED}$selecteduser${NC}"
+        echo 
+        echo -e "What do you want to do?"
         echo
-        echo "[u] Change username. "
-        echo "[p] Change password. "
-        echo "[i] Change user id. "
-        echo "[g] Change primary group id. "
-        echo "[c] Change comment. "
-        echo "[d] Change home directory. "
-        echo "[s] Change shell. "
-        echo "[e] Go back. "
+        echo -e "[${RED}u${NC}] - Change username. "
+        echo -e "[${RED}p${NC}] - Change password. "
+        echo -e "[${RED}i${NC}] - Change user id. "
+        echo -e "[${RED}g${NC}] - Change primary group id. "
+        echo -e "[${RED}c${NC}] - Change comment. "
+        echo -e "[${RED}d${NC}] - Change home directory. "
+        echo -e "[${RED}s${NC}] - Change shell. "
+        echo -e "[${RED}e${NC}] - Go back. "
         read -p '> ' selection
 
         if [[ "$selection" == "u" ]]; then
@@ -307,17 +341,16 @@ getusers(){
 usermanage(){
     while true; do
         header
-        
-        echo "User management"
-        echo 
-        echo "What do you want to do?"
+        echo -e "[${PURPLE}Main menu${NC}] > [${PURPLE}User management${NC}]"
         echo
-        echo "[a] Add user. "
-        echo "[l] List login-users. "
-        echo "[p] Display user properties. "
-        echo "[m] Modify user. "
-        echo "[d] Delete user. "
-        echo "[e] Go back. "
+        echo -e "What do you want to do?"
+        echo
+        echo -e "[${RED}a${NC}] - Add user. "
+        echo -e "[${RED}l${NC}] - List login-users. "
+        echo -e "[${RED}p${NC}] - Display user properties. "
+        echo -e "[${RED}m${NC}] - Modify user. "
+        echo -e "[${RED}d${NC}] - Delete user. "
+        echo -e "[${RED}e${NC}] - Go back. "
 
         getusers
 
@@ -330,6 +363,7 @@ usermanage(){
             for user in ${users[@]}; do
                 echo "    $user"
             done
+            read -p "Press enter to continue..." temp
         #User properties
         elif [[ "$selection" == "p" ]]; then
             header
@@ -340,6 +374,7 @@ usermanage(){
             else
                 printuserprops
             fi
+            read -p "Press enter to continue..." temp
         #Modify user
         elif [[ "$selection" == "m" ]]; then
             header
@@ -360,6 +395,7 @@ usermanage(){
             else
                 deleteuser
             fi
+            read -p "Press enter to continue..." temp
         #Add user
         elif [[ "$selection" == "a" ]]; then
             header
@@ -371,17 +407,19 @@ usermanage(){
                 #Fix custom error message here
                 echo "Failed to create user. "
             fi
+            read -p "Press enter to continue..." temp
         elif [[ "$selection" == "e" ]]; then
             break
         else
             echo "invalid input."
+            read -p "Press enter to continue..." temp
         fi
-        read -p "Press enter to continue..." temp
+        
     done
 }
 
 deletegroup(){
-    echo "Are you sure you want to delete the group: $selectedgroup?[y/n]"
+    echo -e "Are you sure you want to delete the group: ${RED}$selectedgroup${NC}?[y/n]"
     yesno
     if [[ $? -eq 1 ]]; then
         echo "Deleting group: $selectedgroup ..."
@@ -401,17 +439,17 @@ groupmanage(){
     while true; do
         header
         
-        echo "Group management"
+        echo -e "[${PURPLE}Main menu${NC}] > [${PURPLE}Group management${NC}]"
         echo 
-        echo "What do you want to do?"
+        echo -e "What do you want to do?"
         echo
-        echo "[c] Ceate new group. "
-        echo "[l] List all groups, not system groups. "
-        echo "[v] List all users in a group. "
-        echo "[a] Add user to group. "
-        echo "[r] Remove user from group. "
-        echo "[d] Delete group. "
-        echo "[e] Go back. "
+        echo -e "[${RED}c${NC}] - Ceate new group. "
+        echo -e "[${RED}l${NC}] - List all groups, not system groups. "
+        echo -e "[${RED}v${NC}] - List all users in a group. "
+        echo -e "[${RED}a${NC}] - Add user to group. "
+        echo -e "[${RED}r${NC}] - Remove user from group. "
+        echo -e "[${RED}d${NC}] - Delete group. "
+        echo -e "[${RED}e${NC}] - Go back. "
 
         getusers
         getgroups
@@ -608,13 +646,15 @@ dirmanage(){
 mainmenu(){
     while true; do
         header
-        echo "What do you want to do?"
+        echo -e "[${PURPLE}Main menu${NC}]"
+        echo 
+        echo -e "What do you want to do?"
         echo
-        echo "[n] Network information... "
-        echo "[u] User management... "
-        echo "[g] Group management... "
-        echo "[d] Directory management... "
-        echo "[e] Exit."
+        echo -e "[${RED}n${NC}] - Network information... "
+        echo -e "[${RED}u${NC}] - User management... "
+        echo -e "[${RED}g${NC}] - Group management... "
+        echo -e "[${RED}d${NC}] - Directory management... "
+        echo -e "[${RED}e${NC}] - Exit."
 
         read -p '> ' selection
 
@@ -627,6 +667,7 @@ mainmenu(){
         elif [[ "$selection" == "d" ]]; then
             dirmanage
         elif [[ "$selection" == "e" ]]; then
+            clear
             break
         else
             echo "invalid input."
