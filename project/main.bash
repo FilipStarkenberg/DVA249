@@ -1,11 +1,7 @@
 #!/bin/bash
 
 #Todo:
-#FIX SUCSESS TEXT
-# Colors to sub menu names
 # Add custom errors
-# fix go back in menues
-
 
 ######### COLORS! ############
 
