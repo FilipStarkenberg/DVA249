@@ -3,10 +3,12 @@
 #Todo:
 # Application name layout
 # Colors to sub menu names
-# Suppress command outputs
 # Add custom errors
 # 
 # 
+
+logpath="/var/log/systemmanager/"
+logfilename="output.log"
 
 header(){
     clear
@@ -143,9 +145,23 @@ createuser(){
     read -p '> ' comments
 
     if ! [[ "$homedir" == "" ]]; then
-        adduser $newuser --gecos "$comments" --shell "$shell" $ch
+        adduser $newuser --gecos "$comments" --shell "$shell" $ch &> /dev/null
+        errorcode=$?
+        if [[ $errorcode -eq 0 ]]; then
+            echo "User $selecteduser deleted."
+        else
+            #Handle errors here
+            echo "Error: $errorcode"
+        fi
     else
-        adduser $newuser --gecos "$comments" --shell "$shell"
+        adduser $newuser --gecos "$comments" --shell "$shell" &> /dev/null
+        errorcode=$?
+        if [[ $errorcode -eq 0 ]]; then
+            echo "User $selecteduser deleted."
+        else
+            #Handle errors here
+            echo "Error: $errorcode"
+        fi
     fi
 }
 
@@ -165,7 +181,14 @@ modifyuserid(){
     if [[ " ${existingids[*]} " =~ " ${newuserid} " ]]; then
         echo "ID is alredy ocupied."
     else
-        usermod -u "$newuserid" $selecteduser
+        usermod -u "$newuserid" $selecteduser &> /dev/null
+        errorcode=$?
+        if [[ $errorcode -eq 0 ]]; then
+            echo "User $selecteduser deleted."
+        else
+            #Handle errors here
+            echo "Error: $errorcode"
+        fi
     fi
 }
 
@@ -191,7 +214,14 @@ modifyuser(){
             clear
             echo "Enter new username: "
             read -p '> ' newusername
-            usermod -l $newusername $selecteduser
+            usermod -l $newusername $selecteduser &> /dev/null
+            errorcode=$?
+            if [[ $errorcode -eq 0 ]]; then
+                echo "User $selecteduser deleted."
+            else
+                #Handle errors here
+                echo "Error: $errorcode"
+            fi
             selecteduser=$newusername
         elif [[ "$selection" == "p" ]]; then
             clear
@@ -201,23 +231,50 @@ modifyuser(){
         elif [[ "$selection" == "g" ]]; then
             echo "Enter new primary group: "
             read -p '> ' newgroup
-            usermod -g "$newgroup" $selecteduser
-            echo "Return code: $?" #Remove this later and handle errors below
+            usermod -g "$newgroup" $selecteduser &> /dev/null
+            errorcode=$?
+            if [[ $errorcode -eq 0 ]]; then
+                echo "User $selecteduser deleted."
+            else
+                #Handle errors here
+                echo "Error: $errorcode"
+            fi
         elif [[ "$selection" == "c" ]]; then
             echo "Enter new comment: "
             read -p '> ' newcomment
-            usermod -c "$newcomment" $selecteduser
+            usermod -c "$newcomment" $selecteduser &> /dev/null
+            errorcode=$?
+            if [[ $errorcode -eq 0 ]]; then
+                echo "User $selecteduser deleted."
+            else
+                #Handle errors here
+                echo "Error: $errorcode"
+            fi
         elif [[ "$selection" == "d" ]]; then
             echo "Enter new home directory. "
             read -p '> ' newhome
-            usermod -d "$newhome" -m $selecteduser
+            usermod -d "$newhome" -m $selecteduser &> /dev/null
+            errorcode=$?
+            if [[ $errorcode -eq 0 ]]; then
+                echo "User $selecteduser deleted."
+            else
+                #Handle errors here
+                echo "Error: $errorcode"
+            fi
         elif [[ "$selection" == "s" ]]; then
             echo "Enter path to new shell: "
             read -p '> ' newshell
             if [[ ! -f $newshell ]]; then
                 echo "'$newshell' does not exist. "
             else
-                usermod -s "$newshell" $selecteduser
+                usermod -s "$newshell" $selecteduser &> /dev/null
+                errorcode=$?
+                if [[ $errorcode -eq 0 ]]; then
+                    echo "User $selecteduser deleted."
+                else
+                    #Handle errors here
+                    echo "Error: $errorcode"
+                fi
             fi
         elif [[ "$selection" == "e" ]]; then
             break
@@ -582,4 +639,5 @@ if [ "$EUID" -ne 0 ]
     then echo "Please run as root"
     exit
 fi
+
 mainmenu
