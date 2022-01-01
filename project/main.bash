@@ -259,15 +259,24 @@ dirmanage(){
         if [[ "$selection" == "c" ]]; then
             echo -n "input name of the new directory> "
             read DIRNAME
-            mkdir $DIRNAME
-            echo "Directory created!"
+            mkdir $DIRNAME &> /dev/null
+            errorcode=$?
+            if [[ $errorcode -eq 0 ]]; then
+                echo " Directory created succesfully! "
+            else
+                echo "Failed to create $DIRNAME"
+                echo "error: $errorcode"
+            fi
             read -p "Press enter to continue>" temp
+
         elif  [[ "$selection" == "l" ]]; then
-            echo -n "enter name of Directory to list>"
+            echo -n "enter name of Directory to list> "
             read DIRNAME 
-            echo "$DIRNAME content: "
-            ls $DIRNAME
+            echo " $DIRNAME content: "
+            cd $DIRNAME || ls 
+            
             read -p "Press enter to continue>" temp
+            
 
         elif [[ "$selection" == "a" ]]; then
             echo "What do you want to list/change?"
@@ -316,17 +325,24 @@ dirmanage(){
                 echo -n "Others>"
                 read others
                 echo 
-                chmod $owner$group$others $name
+                sudo chmod $owner$group$others $name
                 echo "Permissions changed!"
                 read -p "Press enter to continue>" temp
 
             elif [[ "$Selection" == "s" ]]; then
                 echo
+                read -p "Press enter to continue>" temp
 
             elif [[ "$Selection" == "g" ]]; then
                 echo
+                read -p "Press enter to continue>" temp
+
             elif [[ "$Selection" == "m" ]]; then
-                echo
+                echo "Enter name of directory > "
+                read dirname
+                echo " Last modified:"
+                ls -lt $dirname
+                read -p "Press enter to continue>" temp
             else
                 echo "Invalid input!"
             fi
