@@ -787,10 +787,11 @@ dirmanage(){
             echo "Failed to create Directory"
             fi
             read -p "Press enter to continue>" temp
-
+        # Change working directory
         elif  [[ "$selection" == "w" ]]; then
             selectdir "$PWD"
             cd $selecteddir
+        # View directory attributs
         elif  [[ "$selection" == "v" ]]; then
             listdirattr "$PWD"
         elif  [[ "$selection" == "l" ]]; then
