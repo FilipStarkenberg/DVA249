@@ -771,7 +771,7 @@ dirmanage(){
         read selection
 
         if [[ "$selection" == "c" ]]; then
-            "Enter new directory name to create> "
+            echo -n "Enter new directory name to create> "
             read dirname
             mkdir $dirname &> /dev/null
             errorcode=$?
@@ -945,13 +945,13 @@ dirmanage(){
 
 
         elif [[ "$selection" == "d" ]]; then
-            echo -n "Enter directory name to delete> "
-            read dirname
-            rmdir $dirname &> /dev/null
+            selectdir $PWD
+            rmdir $selecteddir &> /dev/null
             errorcode=$?
             if  [[ $errorcode -eq 0 ]]; then
                 echo " Directory deleted!"
-            #elif [[ $errorcode -eq  #]]; then
+            else
+                echo "Failed to delete Directory!"
             fi
             read -p "Press enter to continue>" temp
         
