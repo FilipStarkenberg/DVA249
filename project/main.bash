@@ -120,7 +120,7 @@ selectgroup(){
         re='^[0-9]+$'
         read -p 'Select or enter group name: ' selectedgroup
         if [[ $selectedgroup =~ $re ]]; then
-            if [[ $selectedgroup >  ${#users[@]} ]]; then
+            if [[ $selectedgroup >  ${#groups[@]} ]]; then
                 echo "Incorrect input"
             else
                 selectedgroup=${groups[selectedgroup]}
