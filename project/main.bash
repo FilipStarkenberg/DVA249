@@ -782,10 +782,11 @@ dirmanage(){
                 echo "Failed to create Directory!"
             fi
             read -p "Press enter to continue>" temp
-
+        # Change working directory
         elif  [[ "$selection" == "w" ]]; then
             selectdir "$PWD"
             cd $selecteddir
+        # View directory attributs
         elif  [[ "$selection" == "v" ]]; then
             listdirattr "$PWD"
 
@@ -856,13 +857,13 @@ dirmanage(){
                 selectdir $PWD
                 echo "Change permissions:"
                 echo "for:"
-                echo "No permissions = 0"
-                echo "Read only = 4"
-                echo "Write only = 2"
-                echo "Execute only = 1"
-                echo "Read & Execute = 5"
-                echo "Read & Write = 6"
-                echo "Read, Write & Execute = 7"
+                echo "No permissions         = 0"
+                echo "Execute only           = 1"
+                echo "Write only             = 2"
+                echo "Read only              = 4"
+                echo "Read & Execute         = 5"
+                echo "Read & Write           = 6"
+                echo "Read, Write & Execute  = 7"
                 echo
                 echo "Please enter permissions as a number for:"
                 # Owner
