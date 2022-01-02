@@ -724,10 +724,10 @@ dirmanage(){
         echo
         echo -e "[${RED}w${NC}] - Change working directory. "
         echo -e "[${RED}v${NC}] - View directory properties. "
-        echo -e "[${RED}c${NC}] - Create Directory"
-        echo -e "[${RED}l${NC}] - List Directory content"
-        echo -e "[${RED}a${NC}] - Change attribute of directory"
-        echo -e "[${RED}d${NC}] - Delete Directory"
+        echo -e "[${RED}c${NC}] - Create Directory. "
+        echo -e "[${RED}l${NC}] - List Directory content. "
+        echo -e "[${RED}a${NC}] - Change attribute of directory. "
+        echo -e "[${RED}d${NC}] - Delete Directory. "
         echo
         echo -n " > "
         read selection
