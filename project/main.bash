@@ -668,8 +668,13 @@ listdirattr(){
     fi
     if [[ $( echo $perms | cut -b 4 ) != "-" ]]; then
         userperms+=( "Execute" )
-        if [[ $( echo $perms | cut -b 4 ) == "s" ]]; then
+        re='[s|S]'
+        if [[ $( echo $perms | cut -b 4 ) =~ $re ]]; then
             setuid="Yes"
+        fi
+        re='[s|x]'
+        if [[ $( echo $perms | cut -b 4 ) =~ $re ]]; then
+            userperms+=( "Execute" )
         fi
     fi
     if [[ $( echo $perms | cut -b 5 ) != "-" ]]; then
@@ -680,8 +685,13 @@ listdirattr(){
     fi
     if [[ $( echo $perms | cut -b 7 ) != "-" ]]; then
         groupperms+=( "Execute" )
-        if [[ $( echo $perms | cut -b 7 ) == "s" ]]; then
+        re='[s|S]'
+        if [[ $( echo $perms | cut -b 7 ) =~ $re ]]; then
             setgid="Yes"
+        fi
+        re='[s|x]'
+        if [[ $( echo $perms | cut -b 7 ) =~ $re ]]; then
+            groupperms+=( "Execute" )
         fi
     fi
     if [[ $( echo $perms | cut -b 8 ) != "-" ]]; then
@@ -691,9 +701,13 @@ listdirattr(){
         userperms+=( "Write" )
     fi
     if [[ $( echo $perms | cut -b 10 ) != "-" ]]; then
-        otherperms+=( "Execute" )
-        if [[ $( echo $perms | cut -b 10 ) == "t" ]]; then
+        re='[t|T]'
+        if [[ $( echo $perms | cut -b 10 ) =~ $re ]]; then
             sticky="Yes"
+        fi
+        re='[t|x]'
+        if [[ $( echo $perms | cut -b 10 ) =~ $re ]]; then
+            otherperms+=( "Execute" )
         fi
     fi
     echo -e "Listing propertiers for: ${RED}$( readlink -f $selecteddir )${NC}"
