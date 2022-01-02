@@ -581,7 +581,7 @@ groupmanage(){
         read -p "Press enter to continue..." temp
     done
 }
-#hi
+
 dirmanage(){
     while true; do
         header
@@ -598,24 +598,39 @@ dirmanage(){
         read selection
 
         if [[ "$selection" == "c" ]]; then
-            echo -n "input name of the new directory> "
+            echo -n "input name of the new Directory> "
             read DIRNAME
             mkdir $DIRNAME &> /dev/null
             errorcode=$?
             if [[ $errorcode -eq 0 ]]; then
                 echo " Directory created succesfully! "
+            elif [[ $errorcode -eq 1 ]]; then
+                echo "Failed to create Directory!"
+                echo "Operation not permitted"
+            elif [[ $errorcode -eq 2 ]]; then
+                echo "Failed to create Directory!"
+                echo "Directory already exists!"
             else
-                echo "Failed to create $DIRNAME"
-                echo "error: $errorcode"
+            echo "Failed to create Directory"
             fi
             read -p "Press enter to continue>" temp
 
         elif  [[ "$selection" == "l" ]]; then
-            echo -n "enter name of Directory to list> "
+            echo -n "Enter name of Directory to list> "
             read DIRNAME 
-            echo " $DIRNAME content: "
-            ls -l $DIRNAME | egrep "^d"
-            
+            ls -l $DIRNAME 2> /dev/null
+            errorcode=$?
+            if [[ $errorcode -eq 0 ]]; then
+                echo " $DIRNAME content: "
+            elif [[ $errorcode -eq 1 ]]; then
+                echo "Failed to list content of Directory"
+                echo "Operation not permitted"
+            elif [[ $errorcode -eq 2 ]]; then
+                echo "Failed to list content of Directory"
+                echo "There is no such Directory"
+            else
+                echo "Failed to list content of Directory"
+            fi
             read -p "Press enter to continue>" temp
             
 
@@ -633,21 +648,39 @@ dirmanage(){
             read  Selection
     
             if [[ "$Selection" == "o" ]]; then
-                echo -n "Please enter id of the new owner>"
+                echo -n "Please enter name of the new owner> "
                 read owner
-                echo -n "Enter directory name>"
+                echo -n "Enter Directory name> "
                 read dirname
-                chown $owner $dirname
-                echo " Ownership changed!"
+                chown $owner $dirname &> /dev/null
+                errorcode=$?
+                if [[ $errorcode -eq 0 ]]; then
+                    echo "Ownership changed!"
+                elif [[ $errorcode -eq 1 ]]; then
+                    echo "Failed to change owner of Directory"
+                else
+                    echo "Failed to change owner of Directory!"
+                fi
+                read -p "Press enter to continue>" temp
+
             elif [[ "$Selection" == "g" ]]; then
                 echo -n "Please enter new group name>"
                 read group
                 echo -n "Enter directory name>"
                 read dirname
-                chown :$group $dirname
-                echo "Group changed!"
+                chown :$group $dirname &> /dev/null
+                errorcode=$?
+                if [[ $errorcode -eq 0 ]]; then
+                    echo "Group changed!"
+                elif [[ $errorcode -eq 1 ]]; then
+                    echo "Failed to change group of Directory"
+                else
+                    echo "Failed to change group of Directory"
+                fi
+                read -p "Press enter to continue>" temp
+
             elif [[ "$Selection" == "p" ]]; then
-                echo -n "Enter directory name you want to change permissions for>"
+                echo -n "Enter Directory name you want to change permissions for> "
                 read filename
                 echo "Change permissions:"
                 echo "for:"
@@ -665,9 +698,16 @@ dirmanage(){
                 read group
                 echo -n "Others>"
                 read others
-                echo "$owner$group$others $filename"
                 chmod $owner$group$others $filename
+                errorcode=$?
+                if [[ $errorcode -eq 0 ]]; then
                 echo "Permissions changed!"
+                echo "error: $errorcode"
+               # elif [[ $errorcode -eq 1 ]]; then
+               echo "Failed to change permissions!"
+                else
+                    echo "error: $errorcode"
+                fi
                 read -p "Press enter to continue>" temp
 
             elif [[ "$Selection" == "t" ]]; then
