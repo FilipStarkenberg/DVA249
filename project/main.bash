@@ -13,7 +13,7 @@ version="1.0.0"
 
 ##### Future work #####
 # Users shuld be able to cancel curent 'task' by pressing Escape or similar. Currently only way to do that is by terminating the application with Ctrl+c.  
-# Less use of 'global' variables. Code is verry hard to follow currently. 
+# Less use of 'global' variables. Code is verry hard to follow currently. More function arguments. 
 
 
 
@@ -47,10 +47,6 @@ WHITE='\033[1;37m'
 NC='\033[0m'  # No Color
 
 ##############################
-
-
-logpath="/var/log/systemmanager/"
-logfilename="output.log"
 
 header(){
     clear
@@ -295,7 +291,7 @@ modifyuser(){
         echo -e "[${RED}p${NC}] - Change password. "
         echo -e "[${RED}i${NC}] - Change user id. "
         echo -e "[${RED}g${NC}] - Change primary group. "
-        echo -e "[${RED}c${NC}] - Change comment. "
+        echo -e "[${RED}c${NC}] - Edit comment. "
         echo -e "[${RED}d${NC}] - Change home directory. "
         echo -e "[${RED}s${NC}] - Change shell. "
         echo -e "[${RED}e${NC}] - Go back. "
@@ -340,8 +336,9 @@ modifyuser(){
             fi
         elif [[ "$selection" == "c" ]]; then
             header
-            echo "Enter new comment: "
-            read -p '> ' newcomment
+            oldcomment=$( cat "/etc/passwd" | grep $selecteduser | cut -d ":" -f 5 )
+            echo "Edit comment and press enter to confirm: "
+            read -e -i "$oldcomment" -p '> ' newcomment
             usermod -c "$newcomment" $selecteduser &> /dev/null
             errorcode=$?
             if [[ $errorcode -eq 0 ]]; then
