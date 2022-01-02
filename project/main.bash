@@ -841,7 +841,7 @@ dirmanage(){
                 read group
                 echo -n "Others>"
                 read others
-                chmod $owner$group$others $filename
+                chmod $owner$group$others $filename &> /dev/null
                 errorcode=$?
                 if [[ $errorcode -eq 0 ]]; then
                 echo "Permissions changed!"
@@ -888,10 +888,12 @@ dirmanage(){
                 errorcode=$?
                 if [[ "$choice" == "1" ]]; then
                     chmod g+s $dirname
-                    #if  [[ $errorcode -eq 0 ]]; then
-                    echo "Setgid for $dirname: on"
+                    errorcode=$?
+                    if  [[ $errorcode -eq 0 ]]; then
+                        echo "Setgid for $dirname: on"
                     #elif [[ $errorcode -eq errorcode ]]; then
                    #felmeddelande
+                   fi
                     
                 elif [[ "$choice" == "2" ]]; then
                     chmod g-s $dirname
