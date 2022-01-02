@@ -771,7 +771,7 @@ dirmanage(){
         elif  [[ "$selection" == "l" ]]; then
             echo -n "Enter name of Directory to list> "
             read DIRNAME 
-            ls -l $DIRNAME 2> /dev/null
+            ls -l $DIRNAME  2> /dev/null
             errorcode=$?
             if [[ $errorcode -eq 0 ]]; then
                 echo " $DIRNAME content: "
@@ -803,61 +803,54 @@ dirmanage(){
             echo -e "[${RED}e${NC}] - Go back"
             echo
             echo -n " > "
-            read  Selection
+            read  selection
     
-            if [[ "$Selection" == "o" ]]; then
-                echo -n "Please enter name of the new owner> "
-                read owner
-                echo -n "Enter Directory name> "
-                read dirname
-                chown $owner $dirname &> /dev/null
+            if [[ "$selection" == "o" ]]; then
+                getusers
+                selectuser
+                selectdir $PWD
+                chown $selecteduser $selecteddir &> /dev/null
                 errorcode=$?
                 if [[ $errorcode -eq 0 ]]; then
                     echo "Ownership changed!"
-                elif [[ $errorcode -eq 1 ]]; then
-                    echo "Failed to change owner of Directory"
                 else
                     echo "Failed to change owner of Directory!"
                 fi
                 read -p "Press enter to continue>" temp
 
-            elif [[ "$Selection" == "g" ]]; then
-                echo -n "Please enter new group name>"
-                read group
-                echo -n "Enter directory name>"
-                read dirname
-                chown :$group $dirname &> /dev/null
+            elif [[ "$selection" == "g" ]]; then
+                getgroups 
+                selectgroup 
+                selectdir $PWD
+                chown :$selectedgroup $selecteddir &> /dev/null
                 errorcode=$?
                 if [[ $errorcode -eq 0 ]]; then
                     echo "Group changed!"
-                elif [[ $errorcode -eq 1 ]]; then
-                    echo "Failed to change group of Directory"
                 else
-                    echo "Failed to change group of Directory"
+                    echo "Failed to change group of Directory!"
                 fi
                 read -p "Press enter to continue>" temp
 
-            elif [[ "$Selection" == "p" ]]; then
-                echo -n "Enter Directory name you want to change permissions for> "
-                read filename
+            elif [[ "$selection" == "p" ]]; then
+                selectdir $PWD
                 echo "Change permissions:"
                 echo "for:"
                 echo "No permissions = 0"
-                echo "read only = 4"
-                echo "write only = 2"
-                echo "execute only = 1"
-                echo "read and execute = 5"
-                echo "read and write = 6"
-                echo "read, write and execute = 7"
+                echo "Read only = 4"
+                echo "Write only = 2"
+                echo "Execute only = 1"
+                echo "Read & Execute = 5"
+                echo "Read & Write = 6"
+                echo "Read, Write & Execute = 7"
                 echo
                 echo "Please enter permissions as a number for:"
-                echo -n "Owner/user>"
+                echo -n "Owner/user> "
                 read owner
-                echo -n "Group>"
+                echo -n "Group> "
                 read group
-                echo -n "Others>"
+                echo -n "Others> "
                 read others
-                chmod $owner$group$others $filename &> /dev/null
+                chmod $owner$group$others $selecteddir &> /dev/null
                 errorcode=$?
                 if [[ $errorcode -eq 0 ]]; then
                 echo "Permissions changed!"
@@ -868,59 +861,57 @@ dirmanage(){
                 fi
                 read -p "Press enter to continue>" temp
 
-            elif [[ "$Selection" == "t" ]]; then
-                echo -n "Enter name of directory> "
-                read dirname
+            elif [[ "$selection" == "t" ]]; then
+                selectdir $PWD
                 echo "For Sticky bit: on input: 1"
                 echo "For Sticky bit: off input: 2"
                 echo -n "> "
                 read choice
                 if [[ "$choice" == "1" ]]; then
-                    chmod +t $dirname &> /dev/null
+                    chmod +t $selecteddir &> /dev/null
                     errorcode=$?
                     if [[ $errorcode -eq 0 ]]; then
-                        echo "Sticky bit for $dirname: on"
+                        echo "Sticky bit for $selecteddir: on"
                     #elif [[ $errorcode -eq #errorcode ]]; then
                    #felmeddelande  
                    fi
                    
                 elif [[ "$choice" == "2" ]]; then
-                    chmod -t $dirname &> /dev/null
+                    chmod -t $selecteddir &> /dev/null
                     errorcode=$?
                     if  [[ $errorcode -eq 0 ]]; then
-                        echo "Sticky bit for $dirname: off"
+                        echo "Sticky bit for $selecteddir: off"
                    # elif [[ $errorcode -eq #errorcode ]]; then
                    #felmeddelande  
                    fi
                 fi
                 read -p "Press enter to continue>" temp
 
-            elif [[ "$Selection" == "s" ]]; then
-                echo -n "Enter name of directory> "
-                read dirname
+            elif [[ "$selection" == "s" ]]; then
+                selectdir $PWD
                 echo "For Setgid: on input: 1"
                 echo "For Setgid: off input: 2"
                 echo -n "> "
                 read choice
                 if [[ "$choice" == "1" ]]; then
-                    chmod g+s $dirname &> /dev/null
+                    chmod g+s $selecteddir &> /dev/null
                     errorcode=$?
                     if  [[ $errorcode -eq 0 ]]; then
-                        echo "Setgid for $dirname: on"
+                        echo "Setgid for $selecteddir: on"
                     #elif [[ $errorcode -eq errorcode ]]; then
                    #felmeddelande
                     fi
                 elif [[ "$choice" == "2" ]]; then
-                    chmod g-s $dirname &> /dev/null
+                    chmod g-s $selecteddir &> /dev/null
                     errorcode=$?
                     if  [[ $errorcode -eq 0 ]]; then
-                        echo "Setgid for $dirname: off"
+                        echo "Setgid for $selecteddir: off"
                    # elif [[ $errorcode -eq errorcode ]]; then
                    #felmeddelande
                     fi
                 fi
                 read -p "Press enter to continue>" temp
-            elif [[ "$Selection" == "e" ]]; then
+            elif [[ "$selection" == "e" ]]; then
                 break
 
             else
@@ -940,7 +931,7 @@ dirmanage(){
             fi
             read -p "Press enter to continue>" temp
         
-        elif [[ "$Selection" == "e" ]]; then
+        elif [[ "$selection" == "e" ]]; then
             break
         else
             echo "Invalid input!"
