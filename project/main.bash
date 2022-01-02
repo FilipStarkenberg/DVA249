@@ -484,6 +484,71 @@ deletegroup(){
     fi
 }
 
+creategroup(){
+    echo "Enter new group name: "
+    read -p '> ' newgroupname
+    addgroup $newgroupname &> /dev/null
+    errorcode=$?
+    if [[ $errorcode -eq 0 ]]; then
+        echo "Group $newgroupname created."
+    else
+        if [[ $errorcode -eq 10 ]]; then
+            echo "  Unable to update group file. "
+        else
+            echo "Unknown error. Code: $errorcode"
+        fi
+    fi
+}
+
+listusersingroup(){
+    groupid=$(cat /etc/group | awk "/$selectedgroup:/ {print}" | cut -d ":" -f 3)
+            usersingroup=( $( cat /etc/passwd | sed 'y/:/ /' | awk -v "gid=$groupid" '$4 == gid {print}' | cut -d ":" -f 1 ) )
+            usersingroup+=( $( cat /etc/group | awk "/$selectedgroup:/ {print}" | cut -d ":" -f 4 | sed 'y/,/ /' ) )
+            
+            echo -e "Users in group ${RED}$selectedgroup${NC}:"
+            for user in ${usersingroup[@]}; do
+                echo -e "    ${LIGHTRED}$user${NC}"
+            done
+            echo
+}
+
+addusertogroup(){
+    adduser $selecteduser $selectedgroup &> /dev/null
+    errorcode=$?
+    if [[ $errorcode -eq 0 ]]; then
+        echo "$selecteduser added to $selectedgroup."
+    else
+        if [[ $errorcode -eq 6 ]]; then
+            echo "  Specified group does not exist. "
+        elif [[ $errorcode -eq 10 ]]; then
+            echo "  Unable to update group file. "
+        else
+            echo "Unknown error. Code: $errorcode"
+        fi
+    fi
+}
+
+removeuserfromgroup(){
+    groupid=$(cat /etc/group | awk "/$selectedgroup:/ {print}" | cut -d ":" -f 3)
+    usersingroup=( $( cat /etc/passwd | sed 'y/:/ /' | awk -v "gid=$groupid" '$4 == gid {print}' | cut -d ":" -f 1 ) )
+    usersingroup+=( $( cat /etc/group | awk "/$selectedgroup:/ {print}" | cut -d ":" -f 4 | sed 'y/,/ /' ) )
+    users=( ${usersingroup[@]} )
+    selectuser
+    deluser $selecteduser $selectedgroup &> /dev/null
+    errorcode=$?
+    if [[ $errorcode -eq 0 ]]; then
+        echo "$selecteduser removed from $selectedgroup."
+    else
+        if [[ $errorcode -eq 7 ]]; then
+            echo "  You cannot remove a user from its primary group. "
+        elif [[ $errorcode -eq 6 ]]; then
+            echo "  The user does not belong to the specified group. "
+        else
+            echo "Unknown error. Code: $errorcode"
+        fi
+    fi
+}
+
 
 groupmanage(){
     while true; do
@@ -508,19 +573,7 @@ groupmanage(){
 
         #Create new group
         if [[ "$selection" == "c" ]]; then
-            echo "Enter new group name: "
-            read -p '> ' newgroupname
-            addgroup $newgroupname &> /dev/null
-            errorcode=$?
-            if [[ $errorcode -eq 0 ]]; then
-                echo "Group $newgroupname created."
-            else
-                if [[ $errorcode -eq 10 ]]; then
-                    echo "  Unable to update group file. "
-                else
-                    echo "Unknown error. Code: $errorcode"
-                fi
-            fi
+            creategroup
         #List all groups
         elif [[ "$selection" == "l" ]]; then
             header
@@ -533,57 +586,21 @@ groupmanage(){
             header
             selectgroup
             header
-            groupid=$(cat /etc/group | awk "/$selectedgroup:/ {print}" | cut -d ":" -f 3)
-            usersingroup=( $( cat /etc/passwd | sed 'y/:/ /' | awk -v "gid=$groupid" '$4 == gid {print}' | cut -d ":" -f 1 ) )
-            usersingroup+=( $( cat /etc/group | awk "/$selectedgroup:/ {print}" | cut -d ":" -f 4 | sed 'y/,/ /' ) )
-            
-            echo -e "Users in group ${RED}$selectedgroup${NC}:"
-            for user in ${usersingroup[@]}; do
-                echo -e "    ${LIGHTRED}$user${NC}"
-            done
-            echo
+            listusersingroup
         #Add an existing user to an existing group
         elif [[ "$selection" == "a" ]]; then
             header
             selectgroup
             header
             selectuser
-            adduser $selecteduser $selectedgroup &> /dev/null
-            errorcode=$?
-            if [[ $errorcode -eq 0 ]]; then
-                echo "$selecteduser added to $selectedgroup."
-            else
-                if [[ $errorcode -eq 6 ]]; then
-                    echo "  Specified group does not exist. "
-                elif [[ $errorcode -eq 10 ]]; then
-                    echo "  Unable to update group file. "
-                else
-                    echo "Unknown error. Code: $errorcode"
-                fi
-            fi
+            addusertogroup
         #Remove existing user from existing group
         elif [[ "$selection" == "r" ]]; then
             header
             selectgroup
             header
-            groupid=$(cat /etc/group | awk "/$selectedgroup:/ {print}" | cut -d ":" -f 3)
-            usersingroup=( $( cat /etc/passwd | sed 'y/:/ /' | awk -v "gid=$groupid" '$4 == gid {print}' | cut -d ":" -f 1 ) )
-            usersingroup+=( $( cat /etc/group | awk "/$selectedgroup:/ {print}" | cut -d ":" -f 4 | sed 'y/,/ /' ) )
-            users=( ${usersingroup[@]} )
-            selectuser
-            deluser $selecteduser $selectedgroup &> /dev/null
-            errorcode=$?
-            if [[ $errorcode -eq 0 ]]; then
-                echo "$selecteduser removed from $selectedgroup."
-            else
-                if [[ $errorcode -eq 7 ]]; then
-                    echo "  You cannot remove a user from its primary group. "
-                elif [[ $errorcode -eq 6 ]]; then
-                    echo "  The user does not belong to the specified group. "
-                else
-                    echo "Unknown error. Code: $errorcode"
-                fi
-            fi
+            removeuserfromgroup
+        #Delete group
         elif [[ "$selection" == "d" ]]; then
             header
             selectgroup
@@ -601,7 +618,8 @@ groupmanage(){
         read -p "Press enter to continue..." temp
     done
 }
-#hi
+
+
 dirmanage(){
     while true; do
         header
