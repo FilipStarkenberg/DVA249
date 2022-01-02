@@ -564,7 +564,7 @@ dirmanage(){
             echo -n "enter name of Directory to list> "
             read DIRNAME 
             echo " $DIRNAME content: "
-            cd $DIRNAME || ls 
+            ls -l $DIRNAME | egrep "^d"
             
             read -p "Press enter to continue>" temp
             
@@ -575,8 +575,8 @@ dirmanage(){
             echo "[o] Owner of directory"
             echo "[g] Group of directory"
             echo "[p] Permissions of Directory"
-            echo "[s] Sticky bit"
-            echo "[g] Setgid"
+            echo "[t] Sticky bit"
+            echo "[s] Setgid"
             echo "[m] Last modified"
             echo 
             echo -n " > "
@@ -615,25 +615,83 @@ dirmanage(){
                 read group
                 echo -n "Others>"
                 read others
-                echo 
-                sudo chmod $owner$group$others $name
+                echo "$owner$group$others $filename"
+                chmod $owner$group$others $filename
                 echo "Permissions changed!"
                 read -p "Press enter to continue>" temp
 
-            elif [[ "$Selection" == "s" ]]; then
-                echo
+            elif [[ "$Selection" == "t" ]]; then
+                echo -n "Enter name of directory> "
+                read dirname
+                echo "For Sticky bit: on input: 1"
+                echo "For Sticky bit: off input: 2"
+                echo -n "> "
+                read choice
+                errorcode=$?
+                if [[ "$choice" == "1" ]]; then
+                    chmod +t $dirname
+                    #if  [[ $errorcode -eq 0 ]]; then
+                    echo "Sticky bit for $dirname: on"
+                    #elif [[ $errorcode -eq #errorcode ]]; then
+                   #felmeddelande  
+                   
+                elif [[ "$choice" == "2" ]]; then
+                    chmod -t $dirname
+                   # if  [[ $errorcode -eq 0 ]]; then
+                    echo "Sticky bit for $dirname: off"
+                   # elif [[ $errorcode -eq #errorcode ]]; then
+                   #felmeddelande  
+                   #fi
+                fi
                 read -p "Press enter to continue>" temp
 
-            elif [[ "$Selection" == "g" ]]; then
-                echo
+            elif [[ "$Selection" == "s" ]]; then
+                echo -n "Enter name of directory> "
+                read dirname
+                echo "For Setgid: on input: 1"
+                echo "For Setgid: off input: 2"
+                echo -n "> "
+                read choice
+                errorcode=$?
+                if [[ "$choice" == "1" ]]; then
+                    chmod g+s $dirname
+                    #if  [[ $errorcode -eq 0 ]]; then
+                    echo "Setgid for $dirname: on"
+                    #elif [[ $errorcode -eq errorcode ]]; then
+                   #felmeddelande
+                    
+                elif [[ "$choice" == "2" ]]; then
+                    chmod g-s $dirname
+                   # if  [[ $errorcode -eq 0 ]]; then
+                    echo "Setgid for $dirname: off"
+                   # elif [[ $errorcode -eq errorcode ]]; then
+                   #felmeddelande
+                
+                fi
                 read -p "Press enter to continue>" temp
 
             elif [[ "$Selection" == "m" ]]; then
-                echo "Enter name of directory > "
+                echo -n "Enter name of directory > "
                 read dirname
-                echo " Last modified:"
-                ls -lt $dirname
+                echo "Last modified:"
+                ls -lt $dirname | egrep "^d" | awk '{print $9,$6,$7,$8}'
+                echo "Do you want to change last modified?"
+                echo "For Yes enter: 1"
+                echo "For No enter: 2"
+                echo -n "> "
+                read choice
+                if [[ "$choice" == "1" ]]; then
+                    echo "Enter directory name> "
+                    read DIRNAME
+                    echo "Enter date and time as [[CC]YY]MMDDhhmm"
+                    echo "example 2022 dec 10 15:30: 2212101530"
+                    read date
+                    touch -t $date $DIRNAME
+                else 
+                echo
+                fi
                 read -p "Press enter to continue>" temp
+
             else
                 echo "Invalid input!"
             fi
@@ -641,7 +699,7 @@ dirmanage(){
 
         elif [[ "$selection" == "d" ]]; then
             echo -n "Enter directory name to delete> "
-            read $dirname
+            read dirname
             rmdir $dirname
             echo " Directory deleted!"
             read -p "Press enter to continue>" temp
