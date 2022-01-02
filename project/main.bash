@@ -793,7 +793,7 @@ dirmanage(){
         #List Directory content
         elif  [[ "$selection" == "l" ]]; then
             selectdir "$PWD"
-            ls -l $selecteddir 2> /dev/null
+            ls -la $selecteddir 2> /dev/null
             errorcode=$?
             if [[ $errorcode -eq 0 ]]; then
                 echo " $selecteddir content: "
