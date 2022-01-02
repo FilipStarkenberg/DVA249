@@ -589,10 +589,10 @@ dirmanage(){
         echo
         echo "What do you want to do?"
         echo
-        echo "[c] Create Directory"
-        echo "[l] List Directory content"
-        echo "[a] List and change attribute of directory"
-        echo "[d] Delete Directory"
+        echo -e "[${RED}c${NC}] - Create Directory"
+        echo -e "[${RED}l${NC}] - List Directory content"
+        echo -e "[${RED}a${NC}] - List and change attribute of directory"
+        echo -e "[${RED}d${NC}] - Delete Directory"
         echo
         echo -n " > "
         read selection
@@ -622,12 +622,12 @@ dirmanage(){
         elif [[ "$selection" == "a" ]]; then
             echo "What do you want to list/change?"
             echo
-            echo "[o] Owner of directory"
-            echo "[g] Group of directory"
-            echo "[p] Permissions of Directory"
-            echo "[t] Sticky bit"
-            echo "[s] Setgid"
-            echo "[m] Last modified"
+            echo -e "[${RED}o${NC}] - Owner of directory"
+            echo -e "[${RED}g${NC}] - Group of directory"
+            echo -e "[${RED}p${NC}] - Permissions of Directory"
+            echo -e "[${RED}t${NC}] - Sticky bit"
+            echo -e "[${RED}s${NC}] - Setgid"
+            echo -e "[${RED}m${NC}] - Last modified"
             echo 
             echo -n " > "
             read  Selection
