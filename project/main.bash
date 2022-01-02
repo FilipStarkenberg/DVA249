@@ -766,9 +766,9 @@ dirmanage(){
         read selection
 
         if [[ "$selection" == "c" ]]; then
-            echo -n "input name of the new Directory> "
-            read DIRNAME
-            mkdir $DIRNAME &> /dev/null
+            "Enter new directory name to create> "
+            read dirname
+            mkdir $dirname &> /dev/null
             errorcode=$?
             if [[ $errorcode -eq 0 ]]; then
                 echo " Directory created succesfully! "
@@ -789,12 +789,11 @@ dirmanage(){
         elif  [[ "$selection" == "v" ]]; then
             listdirattr "$PWD"
         elif  [[ "$selection" == "l" ]]; then
-            echo -n "Enter name of Directory to list> "
-            read DIRNAME 
-            ls -l $DIRNAME  2> /dev/null
+            selectdir "$PWD"
+            ls -l $selecteddir 2> /dev/null
             errorcode=$?
             if [[ $errorcode -eq 0 ]]; then
-                echo " $DIRNAME content: "
+                echo " $selecteddir content: "
             elif [[ $errorcode -eq 1 ]]; then
                 echo "Failed to list content of Directory"
                 echo "Operation not permitted"
