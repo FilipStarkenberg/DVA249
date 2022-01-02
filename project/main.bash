@@ -239,7 +239,7 @@ modifyuserid(){
         echo "Please enter an integer. "
         return 1
     fi
-    if [[ $newuserid < $uidmin || $newuserid > $uidmax ]]; then
+    if [[ $newuserid -lt $uidmin || $newuserid -gt $uidmax ]]; then
         echo "User ID must be between $uidmin and $uidmax. "
         return 2
     fi
