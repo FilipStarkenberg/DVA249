@@ -857,9 +857,8 @@ dirmanage(){
                 errorcode=$?
                 if [[ $errorcode -eq 0 ]]; then
                 echo "Permissions changed!"
-                echo "error: $errorcode"
                # elif [[ $errorcode -eq 1 ]]; then
-               echo "Failed to change permissions!"
+               #echo "Failed to change permissions!"
                 else
                     echo "error: $errorcode"
                 fi
@@ -872,21 +871,23 @@ dirmanage(){
                 echo "For Sticky bit: off input: 2"
                 echo -n "> "
                 read choice
-                errorcode=$?
                 if [[ "$choice" == "1" ]]; then
-                    chmod +t $dirname
-                    #if  [[ $errorcode -eq 0 ]]; then
-                    echo "Sticky bit for $dirname: on"
+                    chmod +t $dirname &> /dev/null
+                    errorcode=$?
+                    if [[ $errorcode -eq 0 ]]; then
+                        echo "Sticky bit for $dirname: on"
                     #elif [[ $errorcode -eq #errorcode ]]; then
                    #felmeddelande  
+                   fi
                    
                 elif [[ "$choice" == "2" ]]; then
-                    chmod -t $dirname
-                   # if  [[ $errorcode -eq 0 ]]; then
-                    echo "Sticky bit for $dirname: off"
+                    chmod -t $dirname &> /dev/null
+                    errorcode=$?
+                    if  [[ $errorcode -eq 0 ]]; then
+                        echo "Sticky bit for $dirname: off"
                    # elif [[ $errorcode -eq #errorcode ]]; then
                    #felmeddelande  
-                   #fi
+                   fi
                 fi
                 read -p "Press enter to continue>" temp
 
@@ -897,7 +898,6 @@ dirmanage(){
                 echo "For Setgid: off input: 2"
                 echo -n "> "
                 read choice
-                errorcode=$?
                 if [[ "$choice" == "1" ]]; then
                     chmod g+s $dirname &> /dev/null
                     errorcode=$?
@@ -908,11 +908,12 @@ dirmanage(){
                     fi
                 elif [[ "$choice" == "2" ]]; then
                     chmod g-s $dirname &> /dev/null
-                   # if  [[ $errorcode -eq 0 ]]; then
-                    echo "Setgid for $dirname: off"
+                    errorcode=$?
+                    if  [[ $errorcode -eq 0 ]]; then
+                        echo "Setgid for $dirname: off"
                    # elif [[ $errorcode -eq errorcode ]]; then
                    #felmeddelande
-                
+                    fi
                 fi
                 read -p "Press enter to continue>" temp
 
