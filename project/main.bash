@@ -612,26 +612,26 @@ groupmanage(){
             done 
         #List all users in a group
         elif [[ "$selection" == "v" ]]; then
-            header
+            
             selectgroup
             header
             listusersingroup
         #Add an existing user to an existing group
         elif [[ "$selection" == "a" ]]; then
-            header
+            
             selectgroup
             header
             selectuser
             addusertogroup
         #Remove existing user from existing group
         elif [[ "$selection" == "r" ]]; then
-            header
+            
             selectgroup
             header
             removeuserfromgroup
         #Delete group
         elif [[ "$selection" == "d" ]]; then
-            header
+            
             selectgroup
             header
             if [[ ! " ${groups[*]} " =~ " ${selectedgroup} " ]]; then
