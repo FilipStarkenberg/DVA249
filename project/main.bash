@@ -4,7 +4,7 @@
 
 ##### AUTHORS #####
 # Filip Starkenberg, fsg18002@student.mdh.se
-# Fatima 
+# Fatima Mahmoud, fmd21001@student.mdh.se
 
 ##### VERSION #####
 version="1.0.0"
