@@ -874,7 +874,7 @@ dirmanage(){
                     read owner
                     re='^[0-9]+$'
                     if [[ $owner =~ $re ]]; then
-                        if [[ $owner > -1 && $owner < 8 && $owner -ne 3 ]]; then
+                        if [[ $owner -gt -1 && $owner -lt 8 && $owner -ne 3 ]]; then
                             break
                         fi
                     fi
