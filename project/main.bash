@@ -818,7 +818,6 @@ dirmanage(){
             echo -e "[${RED}p${NC}] - Permissions of Directory"
             echo -e "[${RED}t${NC}] - Sticky bit"
             echo -e "[${RED}s${NC}] - Setgid"
-            echo -e "[${RED}m${NC}] - Last modified"
             echo -e "[${RED}e${NC}] - Go back"
             echo
             echo -n " > "
