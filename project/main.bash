@@ -887,43 +887,20 @@ dirmanage(){
                 read choice
                 errorcode=$?
                 if [[ "$choice" == "1" ]]; then
-                    chmod g+s $dirname
+                    chmod g+s $dirname &> /dev/null
                     errorcode=$?
                     if  [[ $errorcode -eq 0 ]]; then
                         echo "Setgid for $dirname: on"
                     #elif [[ $errorcode -eq errorcode ]]; then
                    #felmeddelande
-                   fi
-                    
+                    fi
                 elif [[ "$choice" == "2" ]]; then
-                    chmod g-s $dirname
+                    chmod g-s $dirname &> /dev/null
                    # if  [[ $errorcode -eq 0 ]]; then
                     echo "Setgid for $dirname: off"
                    # elif [[ $errorcode -eq errorcode ]]; then
                    #felmeddelande
                 
-                fi
-                read -p "Press enter to continue>" temp
-
-            elif [[ "$Selection" == "m" ]]; then
-                echo -n "Enter name of directory > "
-                read dirname
-                echo "Last modified:"
-                ls -lt $dirname | egrep "^d" | awk '{print $9,$6,$7,$8}'
-                echo "Do you want to change last modified?"
-                echo "For Yes enter: 1"
-                echo "For No enter: 2"
-                echo -n "> "
-                read choice
-                if [[ "$choice" == "1" ]]; then
-                    echo "Enter directory name> "
-                    read DIRNAME
-                    echo "Enter date and time as [[CC]YY]MMDDhhmm"
-                    echo "example 2022 dec 10 15:30: 2212101530"
-                    read date
-                    touch -t $date $DIRNAME
-                else 
-                echo
                 fi
                 read -p "Press enter to continue>" temp
 
@@ -935,8 +912,12 @@ dirmanage(){
         elif [[ "$selection" == "d" ]]; then
             echo -n "Enter directory name to delete> "
             read dirname
-            rmdir $dirname
-            echo " Directory deleted!"
+            rmdir $dirname &> /dev/null
+            errorcode=$?
+            if  [[ $errorcode -eq 0 ]]; then
+                echo " Directory deleted!"
+            #elif [[ $errorcode -eq  #]]; then
+            fi
             read -p "Press enter to continue>" temp
 
         else
