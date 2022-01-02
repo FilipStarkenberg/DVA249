@@ -1,7 +1,30 @@
 #!/bin/bash
 
+##### AUTHORS #####
+# Filip Starkenberg, fsg18002@student.mdh.se
+# Fatima 
+
+##### VERSION #####
+version="1.0.0"
+
+##### Descrition #####
+# Display system information. 
+# Add, view and manage users, groups and directories. 
+
+##### Future work #####
+# Users shuld be able to cancel curent 'task' by pressing Escape or similar. Currently only way to do that is by terminating the application with Ctrl+c.  
+# Less use of 'global' variables. Code is verry hard to follow currently. More function arguments. 
+
+
+
 #Todo:
 # Add custom errors
+# 
+# 
+# 
+# 
+
+
 
 ######### COLORS! ############
 
@@ -25,14 +48,10 @@ NC='\033[0m'  # No Color
 
 ##############################
 
-
-logpath="/var/log/systemmanager/"
-logfilename="output.log"
-
 header(){
     clear
     echo -e "--------------------------------------------------------"
-    echo -e "                 ${YELLOW}SYSTEM MANAGER v1.0.0${NC}"
+    echo -e "                 ${YELLOW}SYSTEM MANAGER v$version${NC}"
     echo -e "--------------------------------------------------------"
     echo
 }
@@ -91,7 +110,6 @@ selectgroup(){
     fi
 }
 
-##Add color
 printuserprops(){
     groups=( $( cat /etc/group | grep $selecteduser | cut -d ":" -f 1 ) )
     echo -e "User properties: ${RED}$selecteduser${NC}"
@@ -117,8 +135,18 @@ deleteuser(){
         if [[ $errorcode -eq 0 ]]; then
             echo "User $selecteduser deleted."
         else
-            #Handle errors here
-            echo "Error: $errorcode"
+            if [[ $errorcode -eq 6 ]]; then
+                echo "  Specified user does not exist. "
+            elif [[ $errorcode -eq 8 ]]; then
+                echo "  User is currently logged in."
+                echo "  Log out user before deleting. "
+            elif [[ $errorcode -eq 10 ]]; then
+                echo "  Unable to update group file. "
+            elif [[ $errorcode -eq 12 ]]; then
+                echo "  Unable to delete home directory. "
+            else
+                echo "  Unknown error. "
+            fi
         fi
     fi
 }
@@ -138,6 +166,11 @@ createuser(){
     echo "New username: "
     read -p '> ' newuser
 
+    if [[ " ${users[*]} " =~ " ${newuser} " ]]; then
+        echo "Username is aledy ocupied. "
+        return 4
+    fi
+
     displaynewuserdata "$newuser" "" "" ""
 
     echo "Comment (gecos): "
@@ -151,22 +184,7 @@ createuser(){
     if [[ $? -eq 1 ]]; then
         echo "Enter absolute path or empty for default:"
         read -p '> ' homedir
-        if [[ ! "$homedir" == "" ]]; then
-            if [[ ! -f "$homedir" ]]; then
-                echo "Directory does not exist. "
-                echo "Do you want to create it? [y/n]"
-                yesno
-                if [[ $? -eq 1 ]]; then
-                    mkdir -p $homedir &> /dev/null
-                    if [[ $? -ne 0 ]]; then
-                        echo "Failed to create directory. "
-                        return 2;
-                    fi
-                else
-                    return 3;
-                fi
-            fi
-        else
+        if [[ "$homedir" == "" ]]; then
             homedir="/home/$newuser"
         fi
         ch="--home "$homedir""
@@ -212,9 +230,51 @@ modifyuserid(){
         if [[ $errorcode -eq 0 ]]; then
             echo -e "Chnged user ID for ${RED}$selecteduser${NC} to ${RED}$newuserid${NC}."
         else
-            #Handle errors here
-            echo "Error: $errorcode"
+            echo "Unable to change user id. Unknown error. "
         fi
+    fi
+}
+
+changehomedir(){
+    echo "Existing home directories: "
+    echo -e "${RED}"
+    ls -c1 /home/
+    echo -e "${NC}"
+    echo "Enter new home directory. "
+    read -p '> ' newhome
+    re='/'
+    if [[ $newhome =~ $re ]]; then
+        echo "Name can not contain the character '/'"
+        return 1
+    fi
+    usermod -d "/home/$newhome" -m $selecteduser &> /dev/null
+    errorcode=$?
+    if [[ $errorcode -eq 0 ]]; then
+        echo -e "Switched home for ${RED}$selecteduser${NC} to ${RED}$newhome${NC}."
+    else
+        #Handle errors here
+        echo "  Unknown error. Code: $errorcode"
+    fi
+}
+
+changeshell(){
+    echo "Enter path to new shell: "
+    read -p '> ' newshell
+    if [[ ! -f $newshell ]]; then
+        echo "'$newshell' does not exist. "
+        return 1
+    fi
+    if [[ ! -x $newshell ]];then
+        echo "'$newshell' is not an executable. "
+        return 2
+    fi
+    usermod -s "$newshell" $selecteduser &> /dev/null
+    errorcode=$?
+    if [[ $errorcode -eq 0 ]]; then
+        echo -e "Switched shell for ${RED}$selecteduser${NC} to ${RED}$newshell${NC}"
+    else
+        #Handle errors here
+        echo "Unknown error. Code: $errorcode"
     fi
 }
 
@@ -230,79 +290,69 @@ modifyuser(){
         echo -e "[${RED}u${NC}] - Change username. "
         echo -e "[${RED}p${NC}] - Change password. "
         echo -e "[${RED}i${NC}] - Change user id. "
-        echo -e "[${RED}g${NC}] - Change primary group id. "
-        echo -e "[${RED}c${NC}] - Change comment. "
+        echo -e "[${RED}g${NC}] - Change primary group. "
+        echo -e "[${RED}c${NC}] - Edit comment. "
         echo -e "[${RED}d${NC}] - Change home directory. "
         echo -e "[${RED}s${NC}] - Change shell. "
         echo -e "[${RED}e${NC}] - Go back. "
         read -p '> ' selection
 
         if [[ "$selection" == "u" ]]; then
-            clear
+            header
             echo "Enter new username: "
             read -p '> ' newusername
             usermod -l $newusername $selecteduser &> /dev/null
             errorcode=$?
             if [[ $errorcode -eq 0 ]]; then
                 echo -e "Changed username form ${RED}$selecteduser${NC} to ${RED}$newusername${NC}. "
+                selecteduser=$newusername
             else
-                #Handle errors here
-                echo "Error: $errorcode"
+            echo "Unable to change username:"
+                if [[ $errorcode -eq 9 ]]; then
+                    echo -e "  Username ${RED}$newusername${NC} is ocupided. "
+                else
+                    echo "  Unknown error. Code: $errorcode"
+                fi
             fi
-            selecteduser=$newusername
         elif [[ "$selection" == "p" ]]; then
-            clear
+            header
             passwd $selecteduser 
         elif [[ "$selection" == "i" ]]; then
             modifyuserid
         elif [[ "$selection" == "g" ]]; then
             echo "Enter new primary group: "
             read -p '> ' newgroup
-            usermod -g "$newgroup" $selecteduser &> /dev/null
+            usermod -g "$newgroup" $selecteduser  &> /dev/null
             errorcode=$?
             if [[ $errorcode -eq 0 ]]; then
                 echo -e "Switched primary group for ${RED}$selecteduser${NC} to ${RED}$newgroup${NC}."
             else
-                #Handle errors here
-                echo "Error: $errorcode"
+                echo "Unable to change primary group:"
+                if [[ $errorcode -eq 6 ]]; then
+                    echo -e "  Group ${RED}$newgroup${NC} does not exist. "
+                else
+                    echo "  Unknown error. Code: $errorcode"
+                fi
             fi
         elif [[ "$selection" == "c" ]]; then
-            echo "Enter new comment: "
-            read -p '> ' newcomment
+            header
+            oldcomment=$( cat "/etc/passwd" | grep $selecteduser | cut -d ":" -f 5 )
+            echo "Edit comment and press enter to confirm: "
+            read -e -i "$oldcomment" -p '> ' newcomment
             usermod -c "$newcomment" $selecteduser &> /dev/null
             errorcode=$?
             if [[ $errorcode -eq 0 ]]; then
                 echo -e "Set comment for ${RED}$selecteduser${NC} to ${RED}$newcomment${NC}"
             else
                 #Handle errors here
-                echo "Error: $errorcode"
+                echo "Unknown error. Code: $errorcode"
             fi
         elif [[ "$selection" == "d" ]]; then
-            echo "Enter new home directory. "
-            read -p '> ' newhome
-            usermod -d "$newhome" -m $selecteduser &> /dev/null
-            errorcode=$?
-            if [[ $errorcode -eq 0 ]]; then
-                echo -e "Switched home for ${RED}$selecteduser${NC} to ${RED}$newhome${NC}."
-            else
-                #Handle errors here
-                echo "Error: $errorcode"
-            fi
+            header
+            changehomedir
         elif [[ "$selection" == "s" ]]; then
-            echo "Enter path to new shell: "
-            read -p '> ' newshell
-            if [[ ! -f $newshell ]]; then
-                echo "'$newshell' does not exist. "
-            else
-                usermod -s "$newshell" $selecteduser &> /dev/null
-                errorcode=$?
-                if [[ $errorcode -eq 0 ]]; then
-                    echo -e "Switched shell for ${RED}$selecteduser${NC} to ${RED}$newshell${NC}"
-                else
-                    #Handle errors here
-                    echo "Error: $errorcode"
-                fi
-            fi
+            header
+            changeshell
         elif [[ "$selection" == "e" ]]; then
             break
         else
