@@ -626,14 +626,87 @@ groupmanage(){
     done
 }
 
+# Params
+# 1: directory
+selectdir(){
+    while true; do
+        dirs=( $(ls -la "$1" | egrep "^d" | awk '{print $9}') )
+        for (( i=0; i < ${#dirs[@]}; i++ )); do
+            echo -e "[${RED}$i${NC}] - ${dirs[i]}" | sed "s/ [.][.]$/ Parent directory/" | sed "s/ [.]$/ This directory/"
+        done
+        re='^[0-9]+$'
+        read -p 'Select directory: ' selecteddir
+        if [[ $selecteddir =~ $re ]]; then
+            selecteddir=${dirs[selecteddir]}
+            break
+        else
+            echo "Please enter an integer. "
+        fi
+    done
+}
+
+# Params
+# 1: directory
+listdirattr(){
+    header
+    selectdir "$1"
+    header
+    userperms=( )
+    groupperms=( )
+    otherperms=( )
+    perms=$( ls -ld "$selecteddir" | awk "{print \$1}" )
+    if [[ $( echo $perms | cut -b 2 ) != "-" ]]; then
+        userperms+=( "Read" )
+    fi
+    if [[ $( echo $perms | cut -b 3 ) != "-" ]]; then
+        userperms+=( "Write" )
+    fi
+    if [[ $( echo $perms | cut -b 4 ) != "-" ]]; then
+        userperms+=( "Execute" )
+    fi
+    if [[ $( echo $perms | cut -b 5 ) != "-" ]]; then
+        groupperms+=( "Read" )
+    fi
+    if [[ $( echo $perms | cut -b 6 ) != "-" ]]; then
+        groupperms+=( "Write" )
+    fi
+    if [[ $( echo $perms | cut -b 7 ) != "-" ]]; then
+        groupperms+=( "Execute" )
+    fi
+    if [[ $( echo $perms | cut -b 8 ) != "-" ]]; then
+        otherperms+=( "Read" )
+    fi
+    if [[ $( echo $perms | cut -b 9 ) != "-" ]]; then
+        userperms+=( "Write" )
+    fi
+    if [[ $( echo $perms | cut -b 10 ) != "-" ]]; then
+        otherperms+=( "Execute" )
+    fi
+    echo -e "Listing propertiers for: ${RED}$( readlink -f $selecteddir )${NC}"
+    echo
+    echo -e "${RED}Owner:${NC}          $( ls -ld "$selecteddir" | awk "{print \$3}" )"
+    echo -e "${RED}Group:${NC}          $( ls -ld "$selecteddir" | awk "{print \$4}" )"
+    echo -e "${RED}Last modified:${NC}  $( ls -ld "$selecteddir" | awk "{print \$6,\$7,\$8}" )"
+    echo
+    echo -e "Permissions: "
+    echo -e "  ${RED}User:${NC}  ${userperms[@]}"
+    echo -e "  ${RED}Group:${NC} ${groupperms[@]}"
+    echo -e "  ${RED}Other:${NC} ${otherperms[@]}"
+    read -p "Press enter to continue..." temp
+}
+
 
 dirmanage(){
     while true; do
         header
         echo "Directory management"
         echo
+        echo -e "You are currently in ${RED}$PWD${NC}"
+        echo
         echo "What do you want to do?"
         echo
+        echo -e "[${RED}w${NC}] - Change working directory. "
+        echo -e "[${RED}v${NC}] - View directory properties. "
         echo -e "[${RED}c${NC}] - Create Directory"
         echo -e "[${RED}l${NC}] - List Directory content"
         echo -e "[${RED}a${NC}] - List and change attribute of directory"
@@ -655,6 +728,11 @@ dirmanage(){
             fi
             read -p "Press enter to continue>" temp
 
+        elif  [[ "$selection" == "w" ]]; then
+            selectdir "$PWD"
+            cd $selecteddir
+        elif  [[ "$selection" == "v" ]]; then
+            listdirattr "$PWD"
         elif  [[ "$selection" == "l" ]]; then
             echo -n "enter name of Directory to list> "
             read DIRNAME 
