@@ -667,7 +667,6 @@ listdirattr(){
         userperms+=( "Write" )
     fi
     if [[ $( echo $perms | cut -b 4 ) != "-" ]]; then
-        userperms+=( "Execute" )
         re='[s|S]'
         if [[ $( echo $perms | cut -b 4 ) =~ $re ]]; then
             setuid="Yes"
@@ -684,7 +683,6 @@ listdirattr(){
         groupperms+=( "Write" )
     fi
     if [[ $( echo $perms | cut -b 7 ) != "-" ]]; then
-        groupperms+=( "Execute" )
         re='[s|S]'
         if [[ $( echo $perms | cut -b 7 ) =~ $re ]]; then
             setgid="Yes"
