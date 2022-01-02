@@ -297,6 +297,7 @@ modifyuser(){
         echo -e "[${RED}e${NC}] - Go back. "
         read -p '> ' selection
 
+        #Change username
         if [[ "$selection" == "u" ]]; then
             header
             echo "Enter new username: "
@@ -314,11 +315,16 @@ modifyuser(){
                     echo "  Unknown error. Code: $errorcode"
                 fi
             fi
+        # Change password
         elif [[ "$selection" == "p" ]]; then
             header
+            echo "Changing password for: ${RED}$selecteduser${NC}"
+            echo
             passwd $selecteduser 
+        # Change user ID
         elif [[ "$selection" == "i" ]]; then
             modifyuserid
+        # Change primary group
         elif [[ "$selection" == "g" ]]; then
             echo "Enter new primary group: "
             read -p '> ' newgroup
@@ -334,6 +340,7 @@ modifyuser(){
                     echo "  Unknown error. Code: $errorcode"
                 fi
             fi
+        # Edit comment
         elif [[ "$selection" == "c" ]]; then
             header
             oldcomment=$( cat "/etc/passwd" | grep $selecteduser | cut -d ":" -f 5 )
@@ -447,7 +454,6 @@ usermanage(){
             if [[ $errorcode -eq 0 ]]; then
                 echo "User create sucsessfully. "
             else
-                #Fix custom error message here
                 echo "Failed to create user. "
             fi
             read -p "Press enter to continue..." temp
@@ -471,8 +477,81 @@ deletegroup(){
         if [[ $errorcode -eq 0 ]]; then
             echo "Group $selectedgroup deleted."
         else
-            #Handle errors here
-            echo "Error: $errorcode"
+            if [[ $errorcode -eq 6 ]]; then
+                echo "  Specified group does not exist. "
+            elif [[ $errorcode -eq 8 ]]; then
+                echo "  Can not remove user's primary group. "
+            elif [[ $errorcode -eq 10 ]]; then
+                echo "  Unable to update group file. "
+            else
+                echo "Unknown error. Code: $errorcode"
+            fi
+            
+        fi
+    fi
+}
+
+creategroup(){
+    echo "Enter new group name: "
+    read -p '> ' newgroupname
+    addgroup $newgroupname &> /dev/null
+    errorcode=$?
+    if [[ $errorcode -eq 0 ]]; then
+        echo "Group $newgroupname created."
+    else
+        if [[ $errorcode -eq 10 ]]; then
+            echo "  Unable to update group file. "
+        else
+            echo "Unknown error. Code: $errorcode"
+        fi
+    fi
+}
+
+listusersingroup(){
+    groupid=$(cat /etc/group | awk "/$selectedgroup:/ {print}" | cut -d ":" -f 3)
+            usersingroup=( $( cat /etc/passwd | sed 'y/:/ /' | awk -v "gid=$groupid" '$4 == gid {print}' | cut -d ":" -f 1 ) )
+            usersingroup+=( $( cat /etc/group | awk "/$selectedgroup:/ {print}" | cut -d ":" -f 4 | sed 'y/,/ /' ) )
+            
+            echo -e "Users in group ${RED}$selectedgroup${NC}:"
+            for user in ${usersingroup[@]}; do
+                echo -e "    ${LIGHTRED}$user${NC}"
+            done
+            echo
+}
+
+addusertogroup(){
+    adduser $selecteduser $selectedgroup &> /dev/null
+    errorcode=$?
+    if [[ $errorcode -eq 0 ]]; then
+        echo "$selecteduser added to $selectedgroup."
+    else
+        if [[ $errorcode -eq 6 ]]; then
+            echo "  Specified group does not exist. "
+        elif [[ $errorcode -eq 10 ]]; then
+            echo "  Unable to update group file. "
+        else
+            echo "Unknown error. Code: $errorcode"
+        fi
+    fi
+}
+
+removeuserfromgroup(){
+    groupid=$(cat /etc/group | awk "/$selectedgroup:/ {print}" | cut -d ":" -f 3)
+    usersingroup=( $( cat /etc/passwd | sed 'y/:/ /' | awk -v "gid=$groupid" '$4 == gid {print}' | cut -d ":" -f 1 ) )
+    usersingroup+=( $( cat /etc/group | awk "/$selectedgroup:/ {print}" | cut -d ":" -f 4 | sed 'y/,/ /' ) )
+    users=( ${usersingroup[@]} )
+    selectuser
+    deluser $selecteduser $selectedgroup &> /dev/null
+    errorcode=$?
+    if [[ $errorcode -eq 0 ]]; then
+        echo "$selecteduser removed from $selectedgroup."
+    else
+        if [[ $errorcode -eq 7 ]]; then
+            echo "  You cannot remove a user from its primary group. "
+        elif [[ $errorcode -eq 6 ]]; then
+            echo "  The user does not belong to the specified group. "
+        else
+            echo "Unknown error. Code: $errorcode"
         fi
     fi
 }
@@ -501,16 +580,7 @@ groupmanage(){
 
         #Create new group
         if [[ "$selection" == "c" ]]; then
-            echo "Enter new group name: "
-            read -p '> ' newgroupname
-            addgroup $newgroupname &> /dev/null
-            errorcode=$?
-            if [[ $errorcode -eq 0 ]]; then
-                echo "Group $newgroupname created."
-            else
-                #Handle errors here
-                echo "Error: $errorcode"
-            fi
+            creategroup
         #List all groups
         elif [[ "$selection" == "l" ]]; then
             header
@@ -523,47 +593,21 @@ groupmanage(){
             header
             selectgroup
             header
-            groupid=$(cat /etc/group | awk "/$selectedgroup:/ {print}" | cut -d ":" -f 3)
-            usersingroup=( $( cat /etc/passwd | sed 'y/:/ /' | awk -v "gid=$groupid" '$4 == gid {print}' | cut -d ":" -f 1 ) )
-            usersingroup+=( $( cat /etc/group | awk "/$selectedgroup:/ {print}" | cut -d ":" -f 4 | sed 'y/,/ /' ) )
-            
-            echo -e "Users in group ${RED}$selectedgroup${NC}:"
-            for user in ${usersingroup[@]}; do
-                echo -e "    ${LIGHTRED}$user${NC}"
-            done
-            echo
+            listusersingroup
         #Add an existing user to an existing group
         elif [[ "$selection" == "a" ]]; then
             header
             selectgroup
             header
             selectuser
-            adduser $selecteduser $selectedgroup &> /dev/null
-            errorcode=$?
-            if [[ $errorcode -eq 0 ]]; then
-                echo "$selecteduser added to $selectedgroup."
-            else
-                #Handle errors here
-                echo "Error: $errorcode"
-            fi
+            addusertogroup
         #Remove existing user from existing group
         elif [[ "$selection" == "r" ]]; then
             header
             selectgroup
             header
-            groupid=$(cat /etc/group | awk "/$selectedgroup:/ {print}" | cut -d ":" -f 3)
-            usersingroup=( $( cat /etc/passwd | sed 'y/:/ /' | awk -v "gid=$groupid" '$4 == gid {print}' | cut -d ":" -f 1 ) )
-            usersingroup+=( $( cat /etc/group | awk "/$selectedgroup:/ {print}" | cut -d ":" -f 4 | sed 'y/,/ /' ) )
-            users=( ${usersingroup[@]} )
-            selectuser
-            deluser $selecteduser $selectedgroup &> /dev/null
-            errorcode=$?
-            if [[ $errorcode -eq 0 ]]; then
-                echo "$selecteduser removed from $selectedgroup."
-            else
-                #Handle errors here
-                echo "Error: $errorcode"
-            fi
+            removeuserfromgroup
+        #Delete group
         elif [[ "$selection" == "d" ]]; then
             header
             selectgroup
@@ -582,13 +626,105 @@ groupmanage(){
     done
 }
 
+<<<<<<< HEAD
+=======
+# Params
+# 1: directory
+selectdir(){
+    while true; do
+        dirs=( $(ls -la "$1" | egrep "^d" | awk '{print $9}') )
+        for (( i=0; i < ${#dirs[@]}; i++ )); do
+            echo -e "[${RED}$i${NC}] - ${dirs[i]}" | sed "s/ [.][.]$/ Parent directory/" | sed "s/ [.]$/ This directory/"
+        done
+        re='^[0-9]+$'
+        read -p 'Select directory: ' selecteddir
+        if [[ $selecteddir =~ $re ]]; then
+            selecteddir=${dirs[selecteddir]}
+            break
+        else
+            echo "Please enter an integer. "
+        fi
+    done
+}
+
+# Params
+# 1: directory
+listdirattr(){
+    header
+    selectdir "$1"
+    header
+    userperms=( )
+    groupperms=( )
+    otherperms=( )
+    setuid="No"
+    setgid="No"
+    sticky="No"
+    perms=$( ls -ld "$selecteddir" | awk "{print \$1}" )
+    if [[ $( echo $perms | cut -b 2 ) != "-" ]]; then
+        userperms+=( "Read" )
+    fi
+    if [[ $( echo $perms | cut -b 3 ) != "-" ]]; then
+        userperms+=( "Write" )
+    fi
+    if [[ $( echo $perms | cut -b 4 ) != "-" ]]; then
+        userperms+=( "Execute" )
+        if [[ $( echo $perms | cut -b 4 ) == "s" ]]; then
+            setuid="Yes"
+        fi
+    fi
+    if [[ $( echo $perms | cut -b 5 ) != "-" ]]; then
+        groupperms+=( "Read" )
+    fi
+    if [[ $( echo $perms | cut -b 6 ) != "-" ]]; then
+        groupperms+=( "Write" )
+    fi
+    if [[ $( echo $perms | cut -b 7 ) != "-" ]]; then
+        groupperms+=( "Execute" )
+        if [[ $( echo $perms | cut -b 4 ) == "s" ]]; then
+            setgid="Yes"
+        fi
+    fi
+    if [[ $( echo $perms | cut -b 8 ) != "-" ]]; then
+        otherperms+=( "Read" )
+    fi
+    if [[ $( echo $perms | cut -b 9 ) != "-" ]]; then
+        userperms+=( "Write" )
+    fi
+    if [[ $( echo $perms | cut -b 10 ) != "-" ]]; then
+        otherperms+=( "Execute" )
+        if [[ $( echo $perms | cut -b 4 ) == "t" ]]; then
+            sticky="Yes"
+        fi
+    fi
+    echo -e "Listing propertiers for: ${RED}$( readlink -f $selecteddir )${NC}"
+    echo
+    echo -e "${RED}Owner:${NC}          $( ls -ld "$selecteddir" | awk "{print \$3}" )"
+    echo -e "${RED}Group:${NC}          $( ls -ld "$selecteddir" | awk "{print \$4}" )"
+    echo -e "${RED}Last modified:${NC}  $( ls -ld "$selecteddir" | awk "{print \$6,\$7,\$8}" )"
+    echo
+    echo -e "Permissions: "
+    echo -e "  ${RED}User:${NC}   ${userperms[@]}"
+    echo -e "  ${RED}Group:${NC}  ${groupperms[@]}"
+    echo -e "  ${RED}Other:${NC}  ${otherperms[@]}"
+    echo -e "  ${RED}Setuid:${NC} $setuid"
+    echo -e "  ${RED}Setgid:${NC} $setgid"
+    echo -e "  ${RED}Sticky:${NC} $sticky"
+    read -p "Press enter to continue..." temp
+}
+
+
+>>>>>>> 0be99aef79bd0929f895066ca9a930d146dc71a4
 dirmanage(){
     while true; do
         header
-        echo "Directory management"
+        echo -e "[${PURPLE}Main menu${NC}] > [${PURPLE}Directory management${NC}]"
+        echo
+        echo -e "You are currently in ${RED}$PWD${NC}"
         echo
         echo "What do you want to do?"
         echo
+        echo -e "[${RED}w${NC}] - Change working directory. "
+        echo -e "[${RED}v${NC}] - View directory properties. "
         echo -e "[${RED}c${NC}] - Create Directory"
         echo -e "[${RED}l${NC}] - List Directory content"
         echo -e "[${RED}a${NC}] - List and change attribute of directory"
@@ -615,6 +751,11 @@ dirmanage(){
             fi
             read -p "Press enter to continue>" temp
 
+        elif  [[ "$selection" == "w" ]]; then
+            selectdir "$PWD"
+            cd $selecteddir
+        elif  [[ "$selection" == "v" ]]; then
+            listdirattr "$PWD"
         elif  [[ "$selection" == "l" ]]; then
             echo -n "Enter name of Directory to list> "
             read DIRNAME 
