@@ -652,6 +652,7 @@ groupmanage(){
 # 1: directory
 selectdir(){
     while true; do
+    header
         dirs=( $(ls -la "$1" | egrep "^d" | awk '{print $9}') )
         for (( i=0; i < ${#dirs[@]}; i++ )); do
             echo -e "[${RED}$i${NC}] - ${dirs[i]}" | sed "s/ [.][.]$/ Parent directory/" | sed "s/ [.]$/ This directory/"
@@ -659,8 +660,12 @@ selectdir(){
         re='^[0-9]+$'
         read -p 'Select directory: ' selecteddir
         if [[ $selecteddir =~ $re ]]; then
-            selecteddir=${dirs[selecteddir]}
-            break
+            if [[ $selecteddir -ge  ${#dirs[@]} ]]; then
+                echo "Incorrect input. "
+            else
+                selecteddir=${dirs[selecteddir]}
+                break
+            fi
         else
             echo "Please enter an integer. "
         fi
