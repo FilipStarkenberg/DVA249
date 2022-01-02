@@ -91,25 +91,45 @@ netinfo(){
 }
 
 selectuser(){
-    for (( i=0; i < ${#users[@]}; i++ )); do
-        echo -e "[${RED}$i${NC}] - ${users[i]}"
+    while true; do
+    header
+        for (( i=0; i < ${#users[@]}; i++ )); do
+            echo -e "[${RED}$i${NC}] - ${users[i]}"
+        done
+        re='^[0-9]+$'
+        read -p 'Select or enter user name: ' selecteduser
+        if [[ $selecteduser =~ $re ]]; then
+            if [[ $selecteduser -ge  ${#users[@]} ]]; then
+                echo "Incorrect input"
+            else
+                selecteduser=${users[selecteduser]}
+                break
+            fi
+        else
+            break
+        fi
     done
-    re='^[0-9]+$'
-    read -p 'Select or enter user name: ' selecteduser
-    if [[ $selecteduser =~ $re ]]; then
-        selecteduser=${users[selecteduser]}
-    fi
 }
 
 selectgroup(){
-    for (( i=0; i < ${#groups[@]}; i++ )); do
-        echo -e "[${RED}$i${NC}] - ${groups[i]}"
+    while true; do
+    header
+        for (( i=0; i < ${#groups[@]}; i++ )); do
+            echo -e "[${RED}$i${NC}] - ${groups[i]}"
+        done
+        re='^[0-9]+$'
+        read -p 'Select or enter group name: ' selectedgroup
+        if [[ $selectedgroup =~ $re ]]; then
+        if [[ $selecteduser >  ${#users[@]} ]]; then
+                echo "Incorrect input"
+            else
+                selectedgroup=${groups[selectedgroup]}
+                break
+            fi
+        else
+            break
+        fi
     done
-    re='^[0-9]+$'
-    read -p 'Select or enter group name: ' selectedgroup
-    if [[ $selectedgroup =~ $re ]]; then
-        selectedgroup=${groups[selectedgroup]}
-    fi
 }
 
 printuserprops(){
