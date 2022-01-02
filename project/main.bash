@@ -297,6 +297,7 @@ modifyuser(){
         echo -e "[${RED}e${NC}] - Go back. "
         read -p '> ' selection
 
+        #Change username
         if [[ "$selection" == "u" ]]; then
             header
             echo "Enter new username: "
@@ -314,11 +315,16 @@ modifyuser(){
                     echo "  Unknown error. Code: $errorcode"
                 fi
             fi
+        # Change password
         elif [[ "$selection" == "p" ]]; then
             header
+            echo "Changing password for: ${RED}$selecteduser${NC}"
+            echo
             passwd $selecteduser 
+        # Change user ID
         elif [[ "$selection" == "i" ]]; then
             modifyuserid
+        # Change primary group
         elif [[ "$selection" == "g" ]]; then
             echo "Enter new primary group: "
             read -p '> ' newgroup
@@ -334,6 +340,7 @@ modifyuser(){
                     echo "  Unknown error. Code: $errorcode"
                 fi
             fi
+        # Edit comment
         elif [[ "$selection" == "c" ]]; then
             header
             oldcomment=$( cat "/etc/passwd" | grep $selecteduser | cut -d ":" -f 5 )
