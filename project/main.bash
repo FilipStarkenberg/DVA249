@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Group p31
+
 ##### AUTHORS #####
 # Filip Starkenberg, fsg18002@student.mdh.se
 # Fatima 
@@ -727,7 +729,7 @@ dirmanage(){
         echo -e "[${RED}v${NC}] - View directory properties. "
         echo -e "[${RED}c${NC}] - Create Directory"
         echo -e "[${RED}l${NC}] - List Directory content"
-        echo -e "[${RED}a${NC}] - List and change attribute of directory"
+        echo -e "[${RED}a${NC}] - Change attribute of directory"
         echo -e "[${RED}d${NC}] - Delete Directory"
         echo
         echo -n " > "
@@ -776,7 +778,10 @@ dirmanage(){
             
 
         elif [[ "$selection" == "a" ]]; then
-            echo "What do you want to list/change?"
+            header
+            echo -e "[${PURPLE}Main menu${NC}] > [${PURPLE}Directory management${NC}] > [${PURPLE}Attribute manager${NC}]"
+            echo
+            echo "What do you want to change?"
             echo
             echo -e "[${RED}o${NC}] - Owner of directory"
             echo -e "[${RED}g${NC}] - Group of directory"
