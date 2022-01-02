@@ -740,6 +740,7 @@ dirmanage(){
         echo -e "[${RED}l${NC}] - List Directory content. "
         echo -e "[${RED}a${NC}] - Change attribute of directory. "
         echo -e "[${RED}d${NC}] - Delete Directory. "
+        echo -e "[${RED}e${NC}] - Go back"
         echo
         echo -n " > "
         read selection
@@ -787,6 +788,7 @@ dirmanage(){
             
 
         elif [[ "$selection" == "a" ]]; then
+        while true; do
             header
             echo -e "[${PURPLE}Main menu${NC}] > [${PURPLE}Directory management${NC}] > [${PURPLE}Attribute manager${NC}]"
             echo
@@ -798,7 +800,8 @@ dirmanage(){
             echo -e "[${RED}t${NC}] - Sticky bit"
             echo -e "[${RED}s${NC}] - Setgid"
             echo -e "[${RED}m${NC}] - Last modified"
-            echo 
+            echo -e "[${RED}e${NC}] - Go back"
+            echo
             echo -n " > "
             read  Selection
     
@@ -839,6 +842,7 @@ dirmanage(){
                 read filename
                 echo "Change permissions:"
                 echo "for:"
+                echo "No permissions = 0"
                 echo "read only = 4"
                 echo "write only = 2"
                 echo "execute only = 1"
@@ -916,10 +920,13 @@ dirmanage(){
                     fi
                 fi
                 read -p "Press enter to continue>" temp
+            elif [[ "$Selection" == "e" ]]; then
+                break
 
             else
                 echo "Invalid input!"
             fi
+            done
 
 
         elif [[ "$selection" == "d" ]]; then
@@ -932,7 +939,9 @@ dirmanage(){
             #elif [[ $errorcode -eq  #]]; then
             fi
             read -p "Press enter to continue>" temp
-
+        
+        elif [[ "$Selection" == "e" ]]; then
+            break
         else
             echo "Invalid input!"
     fi
