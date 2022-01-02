@@ -778,9 +778,6 @@ dirmanage(){
             errorcode=$?
             if [[ $errorcode -eq 0 ]]; then
                 echo " Directory created succesfully! "
-            elif [[ $errorcode -eq 1 ]]; then
-                echo "Failed to create Directory!"
-                echo "Directory already exists!"
             else
                 echo "Failed to create Directory!"
             fi
@@ -855,6 +852,7 @@ dirmanage(){
                 fi
                 read -p "Press enter to continue>" temp
 
+            #Change permissions of Directory
             elif [[ "$selection" == "p" ]]; then
                 selectdir $PWD
                 echo "Change permissions:"
@@ -916,12 +914,15 @@ dirmanage(){
                 fi
                 read -p "Press enter to continue>" temp
 
+            #Sticky bit
             elif [[ "$selection" == "t" ]]; then
                 selectdir $PWD
                 echo "For Sticky bit: on input: 1"
                 echo "For Sticky bit: off input: 2"
                 echo -n "> "
                 read choice
+
+                #Set Sticky bit
                 if [[ "$choice" == "1" ]]; then
                     chmod +t $selecteddir &> /dev/null
                     errorcode=$?
@@ -930,7 +931,8 @@ dirmanage(){
                     else
                         echo "Failed to set Sticky bit!"
                    fi
-                   
+
+                #Remove Sticky bit
                 elif [[ "$choice" == "2" ]]; then
                     chmod -t $selecteddir &> /dev/null
                     errorcode=$?
@@ -942,12 +944,15 @@ dirmanage(){
                 fi
                 read -p "Press enter to continue>" temp
 
+            #Setgid
             elif [[ "$selection" == "s" ]]; then
                 selectdir $PWD
                 echo "For Setgid: on input: 1"
                 echo "For Setgid: off input: 2"
                 echo -n "> "
                 read choice
+
+                #Set Setgid
                 if [[ "$choice" == "1" ]]; then
                     chmod g+s $selecteddir &> /dev/null
                     errorcode=$?
@@ -956,6 +961,8 @@ dirmanage(){
                     else
                         echo "Failed to set Setgid!"
                     fi
+
+                #Remove Setgid
                 elif [[ "$choice" == "2" ]]; then
                     chmod g-s $selecteddir &> /dev/null
                     errorcode=$?
@@ -974,7 +981,7 @@ dirmanage(){
             fi
             done
 
-
+        #Delete Directory
         elif [[ "$selection" == "d" ]]; then
             selectdir $PWD
             rmdir $selecteddir &> /dev/null
@@ -986,6 +993,7 @@ dirmanage(){
             fi
             read -p "Press enter to continue>" temp
         
+        #Go back
         elif [[ "$selection" == "e" ]]; then
             break
         else
