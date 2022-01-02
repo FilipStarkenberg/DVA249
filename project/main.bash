@@ -770,6 +770,7 @@ dirmanage(){
         echo -n " > "
         read selection
 
+        #Create new Directory
         if [[ "$selection" == "c" ]]; then
             echo -n "Enter new directory name to create> "
             read dirname
@@ -779,12 +780,9 @@ dirmanage(){
                 echo " Directory created succesfully! "
             elif [[ $errorcode -eq 1 ]]; then
                 echo "Failed to create Directory!"
-                echo "Operation not permitted"
-            elif [[ $errorcode -eq 2 ]]; then
-                echo "Failed to create Directory!"
                 echo "Directory already exists!"
             else
-            echo "Failed to create Directory"
+                echo "Failed to create Directory!"
             fi
             read -p "Press enter to continue>" temp
 
@@ -793,6 +791,8 @@ dirmanage(){
             cd $selecteddir
         elif  [[ "$selection" == "v" ]]; then
             listdirattr "$PWD"
+
+        #List Directory content
         elif  [[ "$selection" == "l" ]]; then
             selectdir "$PWD"
             ls -l $selecteddir 2> /dev/null
@@ -802,15 +802,12 @@ dirmanage(){
             elif [[ $errorcode -eq 1 ]]; then
                 echo "Failed to list content of Directory"
                 echo "Operation not permitted"
-            elif [[ $errorcode -eq 2 ]]; then
-                echo "Failed to list content of Directory"
-                echo "There is no such Directory"
             else
                 echo "Failed to list content of Directory"
             fi
             read -p "Press enter to continue>" temp
             
-
+        #Change attribute of Directory 
         elif [[ "$selection" == "a" ]]; then
         while true; do
             header
@@ -828,7 +825,8 @@ dirmanage(){
             echo
             echo -n " > "
             read  selection
-    
+
+            #Change owner of Directory
             if [[ "$selection" == "o" ]]; then
                 getusers
                 selectuser
@@ -842,6 +840,7 @@ dirmanage(){
                 fi
                 read -p "Press enter to continue>" temp
 
+            #Change group of Directory
             elif [[ "$selection" == "g" ]]; then
                 getgroups 
                 selectgroup 
@@ -910,11 +909,9 @@ dirmanage(){
                 chmod $owner$group$others $selecteddir &> /dev/null
                 errorcode=$?
                 if [[ $errorcode -eq 0 ]]; then
-                echo "Permissions changed!"
-               # elif [[ $errorcode -eq 1 ]]; then
-               #echo "Failed to change permissions!"
+                    echo "Permissions changed!"
                 else
-                    echo "error: $errorcode"
+                     echo "Failed to change permissions!"
                 fi
                 read -p "Press enter to continue>" temp
 
@@ -929,8 +926,8 @@ dirmanage(){
                     errorcode=$?
                     if [[ $errorcode -eq 0 ]]; then
                         echo "Sticky bit for $selecteddir: on"
-                    #elif [[ $errorcode -eq #errorcode ]]; then
-                   #felmeddelande  
+                    else
+                        echo "Failed to set Sticky bit!"
                    fi
                    
                 elif [[ "$choice" == "2" ]]; then
@@ -938,8 +935,8 @@ dirmanage(){
                     errorcode=$?
                     if  [[ $errorcode -eq 0 ]]; then
                         echo "Sticky bit for $selecteddir: off"
-                   # elif [[ $errorcode -eq #errorcode ]]; then
-                   #felmeddelande  
+                   else
+                        echo "Failed to remove Sticky bit!"
                    fi
                 fi
                 read -p "Press enter to continue>" temp
@@ -955,16 +952,16 @@ dirmanage(){
                     errorcode=$?
                     if  [[ $errorcode -eq 0 ]]; then
                         echo "Setgid for $selecteddir: on"
-                    #elif [[ $errorcode -eq errorcode ]]; then
-                   #felmeddelande
+                    else
+                        echo "Failed to set Setgid!"
                     fi
                 elif [[ "$choice" == "2" ]]; then
                     chmod g-s $selecteddir &> /dev/null
                     errorcode=$?
                     if  [[ $errorcode -eq 0 ]]; then
                         echo "Setgid for $selecteddir: off"
-                   # elif [[ $errorcode -eq errorcode ]]; then
-                   #felmeddelande
+                    else 
+                        echo "Failed to remove Setgid!"
                     fi
                 fi
                 read -p "Press enter to continue>" temp
