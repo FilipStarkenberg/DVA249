@@ -447,7 +447,6 @@ usermanage(){
             if [[ $errorcode -eq 0 ]]; then
                 echo "User create sucsessfully. "
             else
-                #Fix custom error message here
                 echo "Failed to create user. "
             fi
             read -p "Press enter to continue..." temp
@@ -471,8 +470,16 @@ deletegroup(){
         if [[ $errorcode -eq 0 ]]; then
             echo "Group $selectedgroup deleted."
         else
-            #Handle errors here
-            echo "Error: $errorcode"
+            if [[ $errorcode -eq 6 ]]; then
+                echo "  Specified group does not exist. "
+            elif [[ $errorcode -eq 8 ]]; then
+                echo "  Can not remove user's primary group. "
+            elif [[ $errorcode -eq 10 ]]; then
+                echo "  Unable to update group file. "
+            else
+                echo "Unknown error. Code: $errorcode"
+            fi
+            
         fi
     fi
 }
@@ -508,8 +515,11 @@ groupmanage(){
             if [[ $errorcode -eq 0 ]]; then
                 echo "Group $newgroupname created."
             else
-                #Handle errors here
-                echo "Error: $errorcode"
+                if [[ $errorcode -eq 10 ]]; then
+                    echo "  Unable to update group file. "
+                else
+                    echo "Unknown error. Code: $errorcode"
+                fi
             fi
         #List all groups
         elif [[ "$selection" == "l" ]]; then
@@ -543,8 +553,13 @@ groupmanage(){
             if [[ $errorcode -eq 0 ]]; then
                 echo "$selecteduser added to $selectedgroup."
             else
-                #Handle errors here
-                echo "Error: $errorcode"
+                if [[ $errorcode -eq 6 ]]; then
+                    echo "  Specified group does not exist. "
+                elif [[ $errorcode -eq 10 ]]; then
+                    echo "  Unable to update group file. "
+                else
+                    echo "Unknown error. Code: $errorcode"
+                fi
             fi
         #Remove existing user from existing group
         elif [[ "$selection" == "r" ]]; then
@@ -561,8 +576,13 @@ groupmanage(){
             if [[ $errorcode -eq 0 ]]; then
                 echo "$selecteduser removed from $selectedgroup."
             else
-                #Handle errors here
-                echo "Error: $errorcode"
+                if [[ $errorcode -eq 7 ]]; then
+                    echo "  You cannot remove a user from its primary group. "
+                elif [[ $errorcode -eq 6 ]]; then
+                    echo "  The user does not belong to the specified group. "
+                else
+                    echo "Unknown error. Code: $errorcode"
+                fi
             fi
         elif [[ "$selection" == "d" ]]; then
             header
