@@ -885,7 +885,7 @@ dirmanage(){
                 read group
                 re='^[0-9]+$'
                     if [[ $group =~ $re ]]; then
-                        if [[ $group > -1 && $group < 8 && $group -ne 3 ]]; then
+                        if [[ $group -gt -1 && $group -lt 8 && $group -ne 3 ]]; then
                             break
                         fi
                     fi
@@ -898,7 +898,7 @@ dirmanage(){
                 read others
                 re='^[0-9]+$'
                     if [[ $others =~ $re ]]; then
-                        if [[ $others > -1 && $others < 8 && $others -ne 3 ]]; then
+                        if [[ $others -gt -1 && $others -lt 8 && $others -ne 3 ]]; then
                             break
                         fi
                     fi
