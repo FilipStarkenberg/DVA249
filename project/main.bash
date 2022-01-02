@@ -910,7 +910,7 @@ dirmanage(){
                 if [[ $errorcode -eq 0 ]]; then
                     echo "Permissions changed!"
                 else
-                     echo "Failed to change permissions!"
+                    echo "Failed to change permissions!"
                 fi
                 read -p "Press enter to continue>" temp
 
@@ -930,7 +930,7 @@ dirmanage(){
                         echo "Sticky bit for $selecteddir: on"
                     else
                         echo "Failed to set Sticky bit!"
-                   fi
+                    fi
 
                 #Remove Sticky bit
                 elif [[ "$choice" == "2" ]]; then
@@ -938,9 +938,9 @@ dirmanage(){
                     errorcode=$?
                     if  [[ $errorcode -eq 0 ]]; then
                         echo "Sticky bit for $selecteddir: off"
-                   else
+                    else
                         echo "Failed to remove Sticky bit!"
-                   fi
+                    fi
                 fi
                 read -p "Press enter to continue>" temp
 
