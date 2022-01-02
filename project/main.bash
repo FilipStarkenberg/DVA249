@@ -1,7 +1,30 @@
 #!/bin/bash
 
+##### AUTHORS #####
+# Filip Starkenberg, fsg18002@student.mdh.se
+# Fatima 
+
+##### VERSION #####
+version="1.0.0"
+
+##### Descrition #####
+# Display system information. 
+# Add, view and manage users, groups and directories. 
+
+##### Future work #####
+# Users shuld be able to cancel curent 'task' by pressing Escape or similar. Currently only way to do that is by terminating the application with Ctrl+c.  
+# Less use of 'global' variables. Code is verry hard to follow currently. 
+
+
+
 #Todo:
 # Add custom errors
+# 
+# 
+# 
+# 
+
+
 
 ######### COLORS! ############
 
@@ -32,7 +55,7 @@ logfilename="output.log"
 header(){
     clear
     echo -e "--------------------------------------------------------"
-    echo -e "                 ${YELLOW}SYSTEM MANAGER v1.0.0${NC}"
+    echo -e "                 ${YELLOW}SYSTEM MANAGER v$version${NC}"
     echo -e "--------------------------------------------------------"
     echo
 }
@@ -91,7 +114,6 @@ selectgroup(){
     fi
 }
 
-##Add color
 printuserprops(){
     groups=( $( cat /etc/group | grep $selecteduser | cut -d ":" -f 1 ) )
     echo -e "User properties: ${RED}$selecteduser${NC}"
@@ -235,7 +257,28 @@ changehomedir(){
         echo -e "Switched home for ${RED}$selecteduser${NC} to ${RED}$newhome${NC}."
     else
         #Handle errors here
-        echo "Error: $errorcode"
+        echo "  Unknown error. Code: $errorcode"
+    fi
+}
+
+changeshell(){
+    echo "Enter path to new shell: "
+    read -p '> ' newshell
+    if [[ ! -f $newshell ]]; then
+        echo "'$newshell' does not exist. "
+        return 1
+    fi
+    if [[ ! -x $newshell ]];then
+        echo "'$newshell' is not an executable. "
+        return 2
+    fi
+    usermod -s "$newshell" $selecteduser &> /dev/null
+    errorcode=$?
+    if [[ $errorcode -eq 0 ]]; then
+        echo -e "Switched shell for ${RED}$selecteduser${NC} to ${RED}$newshell${NC}"
+    else
+        #Handle errors here
+        echo "Unknown error. Code: $errorcode"
     fi
 }
 
@@ -305,27 +348,14 @@ modifyuser(){
                 echo -e "Set comment for ${RED}$selecteduser${NC} to ${RED}$newcomment${NC}"
             else
                 #Handle errors here
-                echo "  Unknown error. Code: $errorcode"
+                echo "Unknown error. Code: $errorcode"
             fi
         elif [[ "$selection" == "d" ]]; then
             header
             changehomedir
         elif [[ "$selection" == "s" ]]; then
             header
-            echo "Enter path to new shell: "
-            read -p '> ' newshell
-            if [[ ! -f $newshell ]]; then
-                echo "'$newshell' does not exist. "
-            else
-                usermod -s "$newshell" $selecteduser &> /dev/null
-                errorcode=$?
-                if [[ $errorcode -eq 0 ]]; then
-                    echo -e "Switched shell for ${RED}$selecteduser${NC} to ${RED}$newshell${NC}"
-                else
-                    #Handle errors here
-                    echo "Error: $errorcode"
-                fi
-            fi
+            changeshell
         elif [[ "$selection" == "e" ]]; then
             break
         else
