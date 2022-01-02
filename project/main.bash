@@ -654,6 +654,9 @@ listdirattr(){
     userperms=( )
     groupperms=( )
     otherperms=( )
+    setuid="No"
+    setgid="No"
+    sticky="No"
     perms=$( ls -ld "$selecteddir" | awk "{print \$1}" )
     if [[ $( echo $perms | cut -b 2 ) != "-" ]]; then
         userperms+=( "Read" )
@@ -663,6 +666,9 @@ listdirattr(){
     fi
     if [[ $( echo $perms | cut -b 4 ) != "-" ]]; then
         userperms+=( "Execute" )
+        if [[ $( echo $perms | cut -b 4 ) == "s" ]]; then
+            setuid="Yes"
+        fi
     fi
     if [[ $( echo $perms | cut -b 5 ) != "-" ]]; then
         groupperms+=( "Read" )
@@ -672,6 +678,9 @@ listdirattr(){
     fi
     if [[ $( echo $perms | cut -b 7 ) != "-" ]]; then
         groupperms+=( "Execute" )
+        if [[ $( echo $perms | cut -b 4 ) == "s" ]]; then
+            setgid="Yes"
+        fi
     fi
     if [[ $( echo $perms | cut -b 8 ) != "-" ]]; then
         otherperms+=( "Read" )
@@ -681,6 +690,9 @@ listdirattr(){
     fi
     if [[ $( echo $perms | cut -b 10 ) != "-" ]]; then
         otherperms+=( "Execute" )
+        if [[ $( echo $perms | cut -b 4 ) == "t" ]]; then
+            sticky="Yes"
+        fi
     fi
     echo -e "Listing propertiers for: ${RED}$( readlink -f $selecteddir )${NC}"
     echo
@@ -689,9 +701,12 @@ listdirattr(){
     echo -e "${RED}Last modified:${NC}  $( ls -ld "$selecteddir" | awk "{print \$6,\$7,\$8}" )"
     echo
     echo -e "Permissions: "
-    echo -e "  ${RED}User:${NC}  ${userperms[@]}"
-    echo -e "  ${RED}Group:${NC} ${groupperms[@]}"
-    echo -e "  ${RED}Other:${NC} ${otherperms[@]}"
+    echo -e "  ${RED}User:${NC}   ${userperms[@]}"
+    echo -e "  ${RED}Group:${NC}  ${groupperms[@]}"
+    echo -e "  ${RED}Other:${NC}  ${otherperms[@]}"
+    echo -e "  ${RED}Setuid:${NC} $setuid"
+    echo -e "  ${RED}Setgid:${NC} $setgid"
+    echo -e "  ${RED}Sticky:${NC} $sticky"
     read -p "Press enter to continue..." temp
 }
 
