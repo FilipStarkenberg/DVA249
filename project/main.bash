@@ -26,8 +26,6 @@ version="1.0.0"
 # 
 # 
 
-
-
 ######### COLORS! ############
 
 BLACK='\033[0;30m'
@@ -807,177 +805,177 @@ dirmanage(){
             
         #Change attribute of Directory 
         elif [[ "$selection" == "a" ]]; then
-        while true; do
-            header
-            echo -e "[${PURPLE}Main menu${NC}] > [${PURPLE}Directory management${NC}] > [${PURPLE}Attribute manager${NC}]"
-            echo
-            echo "What do you want to change?"
-            echo
-            echo -e "[${RED}o${NC}] - Owner of directory"
-            echo -e "[${RED}g${NC}] - Group of directory"
-            echo -e "[${RED}p${NC}] - Permissions of Directory"
-            echo -e "[${RED}t${NC}] - Sticky bit"
-            echo -e "[${RED}s${NC}] - Setgid"
-            echo -e "[${RED}e${NC}] - Go back"
-            echo
-            echo -n " > "
-            read  selection
-
-            #Change owner of Directory
-            if [[ "$selection" == "o" ]]; then
-                getusers
-                selectuser
-                selectdir $PWD
-                chown $selecteduser $selecteddir &> /dev/null
-                errorcode=$?
-                if [[ $errorcode -eq 0 ]]; then
-                    echo "Ownership changed!"
-                else
-                    echo "Failed to change owner of Directory!"
-                fi
-                read -p "Press enter to continue>" temp
-
-            #Change group of Directory
-            elif [[ "$selection" == "g" ]]; then
-                getgroups 
-                selectgroup 
-                selectdir $PWD
-                chown :$selectedgroup $selecteddir &> /dev/null
-                errorcode=$?
-                if [[ $errorcode -eq 0 ]]; then
-                    echo "Group changed!"
-                else
-                    echo "Failed to change group of Directory!"
-                fi
-                read -p "Press enter to continue>" temp
-
-            #Change permissions of Directory
-            elif [[ "$selection" == "p" ]]; then
-                selectdir $PWD
-                echo "Change permissions:"
-                echo "for:"
-                echo "No permissions         = 0"
-                echo "Execute only           = 1"
-                echo "Write only             = 2"
-                echo "Read only              = 4"
-                echo "Read & Execute         = 5"
-                echo "Read & Write           = 6"
-                echo "Read, Write & Execute  = 7"
+            while true; do
+                header
+                echo -e "[${PURPLE}Main menu${NC}] > [${PURPLE}Directory management${NC}] > [${PURPLE}Attribute manager${NC}]"
                 echo
-                echo "Please enter permissions as a number for:"
-                # Owner
-                while true; do
-                    echo -n "Owner/user> "
-                    read owner
-                    re='^[0-9]+$'
-                    if [[ $owner =~ $re ]]; then
-                        if [[ $owner -gt -1 && $owner -lt 8 && $owner -ne 3 ]]; then
-                            break
-                        fi
-                    fi
-                    echo "Inncorrect input"
-                done
+                echo "What do you want to change?"
+                echo
+                echo -e "[${RED}o${NC}] - Owner of directory"
+                echo -e "[${RED}g${NC}] - Group of directory"
+                echo -e "[${RED}p${NC}] - Permissions of Directory"
+                echo -e "[${RED}t${NC}] - Sticky bit"
+                echo -e "[${RED}s${NC}] - Setgid"
+                echo -e "[${RED}e${NC}] - Go back"
+                echo
+                echo -n " > "
+                read  selection
 
-                # Group
-                while true; do
-                echo -n "Group> "
-                read group
-                re='^[0-9]+$'
-                    if [[ $group =~ $re ]]; then
-                        if [[ $group -gt -1 && $group -lt 8 && $group -ne 3 ]]; then
-                            break
-                        fi
-                    fi
-                    echo "Inncorrect input"
-                done
-
-                # Other
-                while true; do
-                echo -n "Others> "
-                read others
-                re='^[0-9]+$'
-                    if [[ $others =~ $re ]]; then
-                        if [[ $others -gt -1 && $others -lt 8 && $others -ne 3 ]]; then
-                            break
-                        fi
-                    fi
-                    echo "Inncorrect input"
-                done
-                
-                chmod $owner$group$others $selecteddir &> /dev/null
-                errorcode=$?
-                if [[ $errorcode -eq 0 ]]; then
-                    echo "Permissions changed!"
-                else
-                    echo "Failed to change permissions!"
-                fi
-                read -p "Press enter to continue>" temp
-
-            #Sticky bit
-            elif [[ "$selection" == "t" ]]; then
-                selectdir $PWD
-                echo "For Sticky bit: on input: 1"
-                echo "For Sticky bit: off input: 2"
-                echo -n "> "
-                read choice
-
-                #Set Sticky bit
-                if [[ "$choice" == "1" ]]; then
-                    chmod +t $selecteddir &> /dev/null
+                #Change owner of Directory
+                if [[ "$selection" == "o" ]]; then
+                    getusers
+                    selectuser
+                    selectdir $PWD
+                    chown $selecteduser $selecteddir &> /dev/null
                     errorcode=$?
                     if [[ $errorcode -eq 0 ]]; then
-                        echo "Sticky bit for $selecteddir: on"
+                        echo "Ownership changed!"
                     else
-                        echo "Failed to set Sticky bit!"
+                        echo "Failed to change owner of Directory!"
                     fi
+                    read -p "Press enter to continue>" temp
 
-                #Remove Sticky bit
-                elif [[ "$choice" == "2" ]]; then
-                    chmod -t $selecteddir &> /dev/null
+                #Change group of Directory
+                elif [[ "$selection" == "g" ]]; then
+                    getgroups 
+                    selectgroup 
+                    selectdir $PWD
+                    chown :$selectedgroup $selecteddir &> /dev/null
                     errorcode=$?
-                    if  [[ $errorcode -eq 0 ]]; then
-                        echo "Sticky bit for $selecteddir: off"
+                    if [[ $errorcode -eq 0 ]]; then
+                        echo "Group changed!"
                     else
-                        echo "Failed to remove Sticky bit!"
+                        echo "Failed to change group of Directory!"
                     fi
+                    read -p "Press enter to continue>" temp
+
+                #Change permissions of Directory
+                elif [[ "$selection" == "p" ]]; then
+                    selectdir $PWD
+                    echo "Change permissions:"
+                    echo "for:"
+                    echo "No permissions         = 0"
+                    echo "Execute only           = 1"
+                    echo "Write only             = 2"
+                    echo "Read only              = 4"
+                    echo "Read & Execute         = 5"
+                    echo "Read & Write           = 6"
+                    echo "Read, Write & Execute  = 7"
+                    echo
+                    echo "Please enter permissions as a number for:"
+                    # Owner
+                    while true; do
+                        echo -n "Owner/user> "
+                        read owner
+                        re='^[0-9]+$'
+                        if [[ $owner =~ $re ]]; then
+                            if [[ $owner -gt -1 && $owner -lt 8 && $owner -ne 3 ]]; then
+                                break
+                            fi
+                        fi
+                        echo "Inncorrect input"
+                    done
+
+                    # Group
+                    while true; do
+                    echo -n "Group> "
+                    read group
+                    re='^[0-9]+$'
+                        if [[ $group =~ $re ]]; then
+                            if [[ $group -gt -1 && $group -lt 8 && $group -ne 3 ]]; then
+                                break
+                            fi
+                        fi
+                        echo "Inncorrect input"
+                    done
+
+                    # Other
+                    while true; do
+                    echo -n "Others> "
+                    read others
+                    re='^[0-9]+$'
+                        if [[ $others =~ $re ]]; then
+                            if [[ $others -gt -1 && $others -lt 8 && $others -ne 3 ]]; then
+                                break
+                            fi
+                        fi
+                        echo "Inncorrect input"
+                    done
+                    
+                    chmod $owner$group$others $selecteddir &> /dev/null
+                    errorcode=$?
+                    if [[ $errorcode -eq 0 ]]; then
+                        echo "Permissions changed!"
+                    else
+                        echo "Failed to change permissions!"
+                    fi
+                    read -p "Press enter to continue>" temp
+
+                #Sticky bit
+                elif [[ "$selection" == "t" ]]; then
+                    selectdir $PWD
+                    echo "For Sticky bit: on input: 1"
+                    echo "For Sticky bit: off input: 2"
+                    echo -n "> "
+                    read choice
+
+                    #Set Sticky bit
+                    if [[ "$choice" == "1" ]]; then
+                        chmod +t $selecteddir &> /dev/null
+                        errorcode=$?
+                        if [[ $errorcode -eq 0 ]]; then
+                            echo "Sticky bit for $selecteddir: on"
+                        else
+                            echo "Failed to set Sticky bit!"
+                        fi
+
+                    #Remove Sticky bit
+                    elif [[ "$choice" == "2" ]]; then
+                        chmod -t $selecteddir &> /dev/null
+                        errorcode=$?
+                        if  [[ $errorcode -eq 0 ]]; then
+                            echo "Sticky bit for $selecteddir: off"
+                        else
+                            echo "Failed to remove Sticky bit!"
+                        fi
+                    fi
+                    read -p "Press enter to continue>" temp
+
+                #Setgid
+                elif [[ "$selection" == "s" ]]; then
+                    selectdir $PWD
+                    echo "For Setgid: on input: 1"
+                    echo "For Setgid: off input: 2"
+                    echo -n "> "
+                    read choice
+
+                    #Set Setgid
+                    if [[ "$choice" == "1" ]]; then
+                        chmod g+s $selecteddir &> /dev/null
+                        errorcode=$?
+                        if  [[ $errorcode -eq 0 ]]; then
+                            echo "Setgid for $selecteddir: on"
+                        else
+                            echo "Failed to set Setgid!"
+                        fi
+
+                    #Remove Setgid
+                    elif [[ "$choice" == "2" ]]; then
+                        chmod g-s $selecteddir &> /dev/null
+                        errorcode=$?
+                        if [[ $errorcode -eq 0 ]]; then
+                            echo "Setgid for $selecteddir: off"
+                        else 
+                            echo "Failed to remove Setgid!"
+                        fi
+                    fi
+                    read -p "Press enter to continue>" temp
+                elif [[ "$selection" == "e" ]]; then
+                    break
+
+                else
+                    echo "Invalid input!"
                 fi
-                read -p "Press enter to continue>" temp
-
-            #Setgid
-            elif [[ "$selection" == "s" ]]; then
-                selectdir $PWD
-                echo "For Setgid: on input: 1"
-                echo "For Setgid: off input: 2"
-                echo -n "> "
-                read choice
-
-                #Set Setgid
-                if [[ "$choice" == "1" ]]; then
-                    chmod g+s $selecteddir &> /dev/null
-                    errorcode=$?
-                    if  [[ $errorcode -eq 0 ]]; then
-                        echo "Setgid for $selecteddir: on"
-                    else
-                        echo "Failed to set Setgid!"
-                    fi
-
-                #Remove Setgid
-                elif [[ "$choice" == "2" ]]; then
-                    chmod g-s $selecteddir &> /dev/null
-                    errorcode=$?
-                    if  [[ $errorcode -eq 0 ]]; then
-                        echo "Setgid for $selecteddir: off"
-                    else 
-                        echo "Failed to remove Setgid!"
-                    fi
-                fi
-                read -p "Press enter to continue>" temp
-            elif [[ "$selection" == "e" ]]; then
-                break
-
-            else
-                echo "Invalid input!"
-            fi
             done
 
         #Delete Directory
@@ -997,7 +995,7 @@ dirmanage(){
             break
         else
             echo "Invalid input!"
-    fi
+        fi
     done
 }
 
