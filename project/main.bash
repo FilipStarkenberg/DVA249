@@ -680,7 +680,7 @@ listdirattr(){
     fi
     if [[ $( echo $perms | cut -b 7 ) != "-" ]]; then
         groupperms+=( "Execute" )
-        if [[ $( echo $perms | cut -b 4 ) == "s" ]]; then
+        if [[ $( echo $perms | cut -b 7 ) == "s" ]]; then
             setgid="Yes"
         fi
     fi
@@ -692,7 +692,7 @@ listdirattr(){
     fi
     if [[ $( echo $perms | cut -b 10 ) != "-" ]]; then
         otherperms+=( "Execute" )
-        if [[ $( echo $perms | cut -b 4 ) == "t" ]]; then
+        if [[ $( echo $perms | cut -b 10 ) == "t" ]]; then
             sticky="Yes"
         fi
     fi
