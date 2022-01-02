@@ -699,7 +699,7 @@ listdirattr(){
 dirmanage(){
     while true; do
         header
-        echo "Directory management"
+        echo -e "[${PURPLE}Main menu${NC}] > [${PURPLE}Directory management${NC}]"
         echo
         echo -e "You are currently in ${RED}$PWD${NC}"
         echo
