@@ -628,8 +628,6 @@ groupmanage(){
     done
 }
 
-<<<<<<< HEAD
-=======
 # Params
 # 1: directory
 selectdir(){
@@ -715,7 +713,6 @@ listdirattr(){
 }
 
 
->>>>>>> 0be99aef79bd0929f895066ca9a930d146dc71a4
 dirmanage(){
     while true; do
         header
