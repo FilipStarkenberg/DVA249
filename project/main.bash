@@ -869,8 +869,17 @@ dirmanage(){
                 echo "Read, Write & Execute = 7"
                 echo
                 echo "Please enter permissions as a number for:"
-                echo -n "Owner/user> "
-                read owner
+                while true; do
+                    echo -n "Owner/user> "
+                    read owner
+                    re='^[0-9]+$'
+                    if [[ $owner =~ $re ]]; then
+                        if [[ $owner > -1 && $owner < 8 && $owner -ne 3 ]]; then
+                            break
+                        fi
+                    fi
+                    echo "Inncorrect input"
+                done
                 echo -n "Group> "
                 read group
                 echo -n "Others> "
