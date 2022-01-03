@@ -548,14 +548,14 @@ creategroup(){
 # List all users in a group
 listusersingroup(){
     groupid=$(cat /etc/group | awk "/$selectedgroup:/ {print}" | cut -d ":" -f 3)
-            usersingroup=( $( cat /etc/passwd | sed 'y/:/ /' | awk -v "gid=$groupid" '$4 == gid {print}' | cut -d ":" -f 1 ) )
-            usersingroup+=( $( cat /etc/group | awk "/$selectedgroup:/ {print}" | cut -d ":" -f 4 | sed 'y/,/ /' ) )
-            
-            echo -e "Users in group ${RED}$selectedgroup${NC}:"
-            for user in ${usersingroup[@]}; do
-                echo -e "    ${LIGHTRED}$user${NC}"
-            done
-            echo
+    usersingroup=( $( cat /etc/passwd | sed 'y/:/ /' | awk -v "gid=$groupid" '$4 == gid {print $0}' | cut -d " " -f 1 ) )
+    usersingroup+=( $( cat /etc/group | awk "/$selectedgroup:/ {print}" | cut -d ":" -f 4 | sed 'y/,/ /' ) )
+    
+    echo -e "Users in group ${RED}$selectedgroup${NC}:"
+    for user in ${usersingroup[@]}; do
+        echo -e "    ${LIGHTRED}$user${NC}"
+    done
+    echo
 }
 
 # Add an exising user to an existing group
