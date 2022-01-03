@@ -56,7 +56,7 @@ header(){
     echo
 }
 
-
+#Yes or no question. Returns 1 when yes, 0 when no. 
 yesno(){
     while true; do
         read -p '> ' yn
@@ -68,12 +68,14 @@ yesno(){
     done
 }
 
+# Displays network information
 netinfo(){
     header
     echo -e "[${PURPLE}Main menu${NC}] > [${PURPLE}Network information${NC}]"
     echo 
     echo -e "Computer name:  ${CYAN}$HOSTNAME${NC}"
     echo
+    # Get all network devices
     devices=( $( ip link | awk '/: / && !/: lo/ {print $2}' | sed 'y/:/ /' ) )
     echo "Network device(s): "
     echo
@@ -88,6 +90,7 @@ netinfo(){
     read -p "Press enter to continue..." temp
 }
 
+# Select user form existing users
 selectuser(){
     while true; do
     header
@@ -109,6 +112,7 @@ selectuser(){
     done
 }
 
+# Select group from exising groups
 selectgroup(){
     while true; do
     header
@@ -130,6 +134,8 @@ selectgroup(){
     done
 }
 
+
+# Print properties for $selecteduser
 printuserprops(){
     groups=( $( cat /etc/group | grep $selecteduser | cut -d ":" -f 1 ) )
     echo -e "User properties: ${RED}$selecteduser${NC}"
@@ -145,6 +151,7 @@ printuserprops(){
     echo -e "Groups:  ${groups[@]}"
 }
 
+# Delets $selecteduser
 deleteuser(){
     echo -e "Are you sure you want to delete the user: ${RED}$selecteduser${NC}?[y/n]"
     yesno
@@ -171,6 +178,7 @@ deleteuser(){
     fi
 }
 
+# Helper function for createuser
 displaynewuserdata(){
     echo "Creating new user"
     clear
@@ -181,6 +189,7 @@ displaynewuserdata(){
     echo
 }
 
+# Creates a new user
 createuser(){
     displaynewuserdata "" "" "" ""
     echo "New username: "
@@ -229,6 +238,7 @@ createuser(){
 
 }
 
+# Change a user id
 modifyuserid(){
     echo "Enter new user ID. Must be between $uidmin and $uidmax. "
     read -p '> ' newuserid
@@ -255,6 +265,7 @@ modifyuserid(){
     fi
 }
 
+# Change user home directory
 changehomedir(){
     echo "Existing home directories: "
     echo -e "${RED}"
@@ -277,6 +288,7 @@ changehomedir(){
     fi
 }
 
+# Change shell for user
 changeshell(){
     echo "Enter path to new shell: "
     read -p '> ' newshell
@@ -298,6 +310,7 @@ changeshell(){
     fi
 }
 
+# Menu loop when modifying a user
 modifyuser(){
     while true; do
         header
@@ -390,6 +403,7 @@ modifyuser(){
     done
 }
 
+# Get user groups
 getgroups(){
     gidmin=$(grep "^GID_MIN" /etc/login.defs)
     gidmax=$(grep "^GID_MAX" /etc/login.defs)
@@ -399,6 +413,7 @@ getgroups(){
     groups=( $( awk -F':' -v "min=$gidmin" -v "max=$gidmax" '{ if ( $3 >= min && $3 <= max) print $0 }' "/etc/group" | cut -d ":" -f 1) )
 }
 
+# Get login users
 getusers(){
     uidmin=$(grep "^UID_MIN" /etc/login.defs)
     uidmax=$(grep "^UID_MAX" /etc/login.defs)
@@ -408,6 +423,7 @@ getusers(){
     users=( $( awk -F':' -v "min=$uidmin" -v "max=$uidmax" '{ if ( $3 >= min && $3 <= max  && $7 != "/sbin/nologin" ) print $0 }' "/etc/passwd" | cut -d ":" -f 1) )
 }
 
+# Menu for managing users
 usermanage(){
     while true; do
         header
@@ -487,6 +503,7 @@ usermanage(){
     done
 }
 
+# Delete $selectedgroup
 deletegroup(){
     echo -e "Are you sure you want to delete the group: ${RED}$selectedgroup${NC}?[y/n]"
     yesno
@@ -511,6 +528,7 @@ deletegroup(){
     fi
 }
 
+# Create a group
 creategroup(){
     echo "Enter new group name: "
     read -p '> ' newgroupname
@@ -527,6 +545,7 @@ creategroup(){
     fi
 }
 
+# List all users in a group
 listusersingroup(){
     groupid=$(cat /etc/group | awk "/$selectedgroup:/ {print}" | cut -d ":" -f 3)
             usersingroup=( $( cat /etc/passwd | sed 'y/:/ /' | awk -v "gid=$groupid" '$4 == gid {print}' | cut -d ":" -f 1 ) )
@@ -539,6 +558,7 @@ listusersingroup(){
             echo
 }
 
+# Add an exising user to an existing group
 addusertogroup(){
     adduser $selecteduser $selectedgroup &> /dev/null
     errorcode=$?
@@ -555,6 +575,7 @@ addusertogroup(){
     fi
 }
 
+# Remove an exising user from an existing group
 removeuserfromgroup(){
     groupid=$(cat /etc/group | awk "/$selectedgroup:/ {print}" | cut -d ":" -f 3)
     usersingroup=( $( cat /etc/passwd | sed 'y/:/ /' | awk -v "gid=$groupid" '$4 == gid {print}' | cut -d ":" -f 1 ) )
@@ -576,7 +597,7 @@ removeuserfromgroup(){
     fi
 }
 
-
+# Menu for group management
 groupmanage(){
     while true; do
         header
@@ -669,7 +690,7 @@ selectdir(){
         fi
     done
 }
-
+# List attributes for a directory
 # Params
 # 1: directory
 listdirattr(){
@@ -747,7 +768,7 @@ listdirattr(){
     read -p "Press enter to continue..." temp
 }
 
-
+# Menu for managing directories
 dirmanage(){
     while true; do
         header
