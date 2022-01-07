@@ -757,7 +757,7 @@ listdirattr(){
     echo -e "${YELLOW}Last modified:${NC}  $( ls -ld "$selecteddir" | awk "{print \$6,\$7,\$8}" )"
     echo
     echo -e "Permissions: "
-    echo -e "  ${YELLOW}Owner:${NC}   ${ownerperms[@]}"
+    echo -e "  ${YELLOW}Owner:${NC}  ${ownerperms[@]}"
     echo -e "  ${YELLOW}Group:${NC}  ${groupperms[@]}"
     echo -e "  ${YELLOW}Other:${NC}  ${otherperms[@]}"
     echo -e "  ${YELLOW}Setuid:${NC} $setuid"
@@ -778,9 +778,10 @@ dirmanage(){
         echo
         echo -e "[${YELLOW}w${NC}] - Change working directory. "
         echo -e "[${YELLOW}v${NC}] - View directory properties. "
-        echo -e "[${YELLOW}c${NC}] - Create Directory. "
+        echo -e "[${YELLOW}t${NC}] - View directory tree. "
         echo -e "[${YELLOW}l${NC}] - List Directory content. "
-        echo -e "[${YELLOW}a${NC}] - Change attribute of directory. "
+        echo -e "[${YELLOW}c${NC}] - Create Directory. "
+        echo -e "[${YELLOW}a${NC}] - Change attribute of directory... "
         echo -e "[${YELLOW}d${NC}] - Delete Directory. "
         echo -e "[${YELLOW}e${NC}] - Go back"
         echo
@@ -797,6 +798,9 @@ dirmanage(){
             else
                 echo "Failed to create Directory!"
             fi
+            read -p "Press enter to continue..." temp
+        elif  [[ "$selection" == "t" ]]; then
+            tree -ad
             read -p "Press enter to continue..." temp
         # Change working directory
         elif  [[ "$selection" == "w" ]]; then
