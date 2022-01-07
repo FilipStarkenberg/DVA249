@@ -7,7 +7,7 @@
 # Fatima Mahmoud, fmd21001@student.mdh.se
 
 ##### VERSION #####
-version="1.0.0"
+version="1.0.1"
 
 ##### Descrition #####
 # Display system information. 
@@ -20,7 +20,7 @@ version="1.0.0"
 
 
 #Todo:
-# Add custom errors
+# 
 # 
 # 
 # 
@@ -87,7 +87,7 @@ netinfo(){
         echo -e "${LIGHTRED}  Device status:${NC}        $( ip link show $device | awk '/: / && !/: lo/ {print $9}' )"
         echo
     done
-    read -p "Press enter to continue..." temp
+    read -rsn1 -p "Press enter to continue..." temp
 }
 
 # Select user form existing users
@@ -328,7 +328,7 @@ modifyuser(){
         echo -e "[${RED}d${NC}] - Change home directory. "
         echo -e "[${RED}s${NC}] - Change shell. "
         echo -e "[${RED}e${NC}] - Go back. "
-        read -p '> ' selection
+        read -rsn1 -p '> ' selection
 
         #Change username
         if [[ "$selection" == "u" ]]; then
@@ -440,7 +440,7 @@ usermanage(){
 
         getusers
 
-        read -p '> ' selection
+        read -rsn1 -p '> ' selection
         
         #list users
         if [[ "$selection" == "l" ]]; then
@@ -617,7 +617,7 @@ groupmanage(){
         getusers
         getgroups
 
-        read -p '> ' selection
+        read -rsn1 -p '> ' selection
 
         #Create new group
         if [[ "$selection" == "c" ]]; then
@@ -786,8 +786,7 @@ dirmanage(){
         echo -e "[${RED}d${NC}] - Delete Directory. "
         echo -e "[${RED}e${NC}] - Go back"
         echo
-        echo -n " > "
-        read selection
+        read -rsn1 -p '> ' selection
 
         #Create new Directory
         if [[ "$selection" == "c" ]]; then
@@ -839,8 +838,7 @@ dirmanage(){
                 echo -e "[${RED}s${NC}] - Setgid"
                 echo -e "[${RED}e${NC}] - Go back"
                 echo
-                echo -n " > "
-                read  selection
+                read -rsn1 -p '> ' selection
 
                 #Change owner of Directory
                 if [[ "$selection" == "o" ]]; then
@@ -1009,13 +1007,78 @@ dirmanage(){
             else
                 echo "Failed to delete Directory!"
             fi
-            read -p "Press enter to continue>" temp
+            read -p "Press enter to continue..." temp
         
         #Go back
         elif [[ "$selection" == "e" ]]; then
             break
         else
             echo "Invalid input!"
+        fi
+    done
+}
+
+packagemanager(){
+    while true; do
+        header
+        echo -e "[${PURPLE}Main menu${NC}] > [${PURPLE}Package manager${NC}]"
+        echo 
+        echo -e "What do you want to do?"
+        echo
+        echo -e "[${RED}u${NC}] - Update. "
+        echo -e "[${RED}s${NC}] - Search all packages. "
+        echo -e "[${RED}l${NC}] - Search installed packages. "
+        echo -e "[${RED}i${NC}] - Install package. "
+        echo -e "[${RED}r${NC}] - Remove package. "
+        echo -e "[${RED}e${NC}] - Go back."
+
+        read -rsn1 -p '> ' selection
+
+        if [[ "$selection" == "u" ]]; then
+            echo "This will update all installed packages. Proceed? [y/n]"
+            yesno
+            if [[ $? -eq 1 ]]; then
+                echo -e "${PURPLE}System manager:${NC} ${RED}Executing command: apt update${NC}"
+                apt update
+                echo -e "${PURPLE}System manager:${NC} ${RED}Executing command: apt upgrade${NC}"
+                apt upgrade
+                echo -e "${PURPLE}System manager:${NC} ${RED}Executing command: apt autoremove${NC}"
+                apt autoremove
+            fi
+            read -p "Press enter to continue..." temp
+        elif [[ "$selection" == "s" ]]; then
+            echo "Enter search pattern:"
+            read -p '> ' searchpattern
+            apt list | egrep "$searchpattern"
+            read -p "Press enter to continue..." temp
+        elif [[ "$selection" == "l" ]]; then
+            echo "Enter search pattern:"
+            read -p '> ' searchpattern
+            apt list --installed | egrep "$searchpattern"
+            read -p "Press enter to continue..." temp
+        elif [[ "$selection" == "i" ]]; then
+            echo "Enter package name:"
+            read -p '> ' packagename
+            apt install $packagename
+            if [[ $? -ne 0 ]]; then
+                echo "Try snap instead? [y/n]"
+                yesno
+                if [[ $? -eq 1 ]]; then
+                    snap install $packagename --classic
+                fi
+            fi
+            read -p "Press enter to continue..." temp
+        elif [[ "$selection" == "r" ]]; then
+            echo "Enter package name:"
+            read -p '> ' packagename
+            apt remvoe $packagename
+            echo -e "${PURPLE}System manager:${NC} ${RED}Executing command: apt autoremove${NC}"
+            apt autoremove
+            read -p "Press enter to continue..." temp
+        elif [[ "$selection" == "e" ]]; then
+            break
+        else
+            echo "invalid input."
         fi
     done
 }
@@ -1031,9 +1094,10 @@ mainmenu(){
         echo -e "[${RED}u${NC}] - User management... "
         echo -e "[${RED}g${NC}] - Group management... "
         echo -e "[${RED}d${NC}] - Directory management... "
+        echo -e "[${RED}p${NC}] - Package manager..."
         echo -e "[${RED}e${NC}] - Exit."
 
-        read -p '> ' selection
+        read -rsn1 -p '> ' selection
 
         if [[ "$selection" == "n" ]]; then
             netinfo
@@ -1043,6 +1107,8 @@ mainmenu(){
             groupmanage
         elif [[ "$selection" == "d" ]]; then
             dirmanage
+        elif [[ "$selection" == "p" ]]; then
+            packagemanager
         elif [[ "$selection" == "e" ]]; then
             clear
             break
