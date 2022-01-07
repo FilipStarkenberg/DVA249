@@ -80,11 +80,11 @@ netinfo(){
     echo "Network device(s): "
     echo
     for device in ${devices[@]}; do
-        echo -e "${RED}$device:${NC}"
-        echo -e "${LIGHTRED}  IP address:${NC}           $( ip addr show $device | awk '/inet / {print $2}' )"
-        echo -e "${LIGHTRED}  Mac adddress:${NC}         $( ip addr show $device | awk '/link\// {print $2}' )"
-        echo -e "${LIGHTRED}  Default gateway:${NC}      $( ip r | awk "/default via / && /$device/ {print \$3}" )"
-        echo -e "${LIGHTRED}  Device status:${NC}        $( ip link show $device | awk '/: / && !/: lo/ {print $9}' )"
+        echo -e "${YELLOW}$device:${NC}"
+        echo -e "${CYAN}  IP address:${NC}           $( ip addr show $device | awk '/inet / {print $2}' )"
+        echo -e "${CYAN}  Mac adddress:${NC}         $( ip addr show $device | awk '/link\// {print $2}' )"
+        echo -e "${CYAN}  Default gateway:${NC}      $( ip r | awk "/default via / && /$device/ {print \$3}" )"
+        echo -e "${CYAN}  Device status:${NC}        $( ip link show $device | awk '/: / && !/: lo/ {print $9}' )"
         echo
     done
     read -rsn1 -p "Press enter to continue..." temp
@@ -95,7 +95,7 @@ selectuser(){
     while true; do
     header
         for (( i=0; i < ${#users[@]}; i++ )); do
-            echo -e "[${RED}$i${NC}] - ${users[i]}"
+            echo -e "[${YELLOW}$i${NC}] - ${users[i]}"
         done
         re='^[0-9]+$'
         read -p 'Select or enter user name: ' selecteduser
@@ -117,7 +117,7 @@ selectgroup(){
     while true; do
     header
         for (( i=0; i < ${#groups[@]}; i++ )); do
-            echo -e "[${RED}$i${NC}] - ${groups[i]}"
+            echo -e "[${YELLOW}$i${NC}] - ${groups[i]}"
         done
         re='^[0-9]+$'
         read -p 'Select or enter group name: ' selectedgroup
@@ -138,22 +138,22 @@ selectgroup(){
 # Print properties for $selecteduser
 printuserprops(){
     groups=( $( cat /etc/group | grep $selecteduser | cut -d ":" -f 1 ) )
-    echo -e "User properties: ${RED}$selecteduser${NC}"
+    echo -e "User properties: ${YELLOW}$selecteduser${NC}"
     echo
-    echo -e "${RED}User name:${NC}      $( cat /etc/passwd | egrep "^$selecteduser:" | cut -d ":" -f 1 )"
-    echo -e "${RED}Password:${NC}       $( cat /etc/passwd | egrep "^$selecteduser:" | cut -d ":" -f 2 )"
-    echo -e "${RED}User ID:${NC}        $( cat /etc/passwd | egrep "^$selecteduser:" | cut -d ":" -f 3 )"
-    echo -e "${RED}Group ID:${NC}       $( cat /etc/passwd | egrep "^$selecteduser:" | cut -d ":" -f 4 )"
-    echo -e "${RED}Directory:${NC}      $( cat /etc/passwd | egrep "^$selecteduser:" | cut -d ":" -f 6 )"
-    echo -e "${RED}Comment:${NC}        $( cat /etc/passwd | egrep "^$selecteduser:" | cut -d ":" -f 5 )"
-    echo -e "${RED}Shell:${NC}          $( cat /etc/passwd | egrep "^$selecteduser:" | cut -d ":" -f 7 )"
+    echo -e "${YELLOW}User name:${NC}      $( cat /etc/passwd | egrep "^$selecteduser:" | cut -d ":" -f 1 )"
+    echo -e "${YELLOW}Password:${NC}       $( cat /etc/passwd | egrep "^$selecteduser:" | cut -d ":" -f 2 )"
+    echo -e "${YELLOW}User ID:${NC}        $( cat /etc/passwd | egrep "^$selecteduser:" | cut -d ":" -f 3 )"
+    echo -e "${YELLOW}Group ID:${NC}       $( cat /etc/passwd | egrep "^$selecteduser:" | cut -d ":" -f 4 )"
+    echo -e "${YELLOW}Directory:${NC}      $( cat /etc/passwd | egrep "^$selecteduser:" | cut -d ":" -f 6 )"
+    echo -e "${YELLOW}Comment:${NC}        $( cat /etc/passwd | egrep "^$selecteduser:" | cut -d ":" -f 5 )"
+    echo -e "${YELLOW}Shell:${NC}          $( cat /etc/passwd | egrep "^$selecteduser:" | cut -d ":" -f 7 )"
     echo
-    echo -e "${RED}Groups:${NC} ${groups[@]}"
+    echo -e "${YELLOW}Groups:${NC} ${groups[@]}"
 }
 
 # Delets $selecteduser
 deleteuser(){
-    echo -e "Are you sure you want to delete the user: ${RED}$selecteduser${NC}?[y/n]"
+    echo -e "Are you sure you want to delete the user: ${YELLOW}$selecteduser${NC}?[y/n]"
     yesno
     if [[ $? -eq 1 ]]; then
         echo "Deleting user: $selecteduser ..."
@@ -182,10 +182,10 @@ deleteuser(){
 displaynewuserdata(){
     echo "Creating new user"
     clear
-    echo -e "${RED}User name:${NC}      $1"
-    echo -e "${RED}Comment:${NC}        $2"
-    echo -e "${RED}Directory:${NC}      $3"
-    echo -e "${RED}Shell:${NC}          $4"
+    echo -e "${YELLOW}User name:${NC}      $1"
+    echo -e "${YELLOW}Comment:${NC}        $2"
+    echo -e "${YELLOW}Directory:${NC}      $3"
+    echo -e "${YELLOW}Shell:${NC}          $4"
     echo
 }
 
@@ -258,7 +258,7 @@ modifyuserid(){
         usermod -u "$newuserid" $selecteduser &> /dev/null
         errorcode=$?
         if [[ $errorcode -eq 0 ]]; then
-            echo -e "Chnged user ID for ${RED}$selecteduser${NC} to ${RED}$newuserid${NC}."
+            echo -e "Chnged user ID for ${YELLOW}$selecteduser${NC} to ${YELLOW}$newuserid${NC}."
         else
             echo "Unable to change user id. Unknown error. "
         fi
@@ -268,7 +268,7 @@ modifyuserid(){
 # Change user home directory
 changehomedir(){
     echo "Existing home directories: "
-    echo -e "${RED}"
+    echo -e "${YELLOW}"
     ls -c1 /home/
     echo -e "${NC}"
     echo "Enter new home directory. "
@@ -281,7 +281,7 @@ changehomedir(){
     usermod -d "/home/$newhome" -m $selecteduser &> /dev/null
     errorcode=$?
     if [[ $errorcode -eq 0 ]]; then
-        echo -e "Switched home for ${RED}$selecteduser${NC} to ${RED}$newhome${NC}."
+        echo -e "Switched home for ${YELLOW}$selecteduser${NC} to ${YELLOW}$newhome${NC}."
     else
         #Handle errors here
         echo "  Unknown error. Code: $errorcode"
@@ -303,7 +303,7 @@ changeshell(){
     usermod -s "$newshell" $selecteduser &> /dev/null
     errorcode=$?
     if [[ $errorcode -eq 0 ]]; then
-        echo -e "Switched shell for ${RED}$selecteduser${NC} to ${RED}$newshell${NC}"
+        echo -e "Switched shell for ${YELLOW}$selecteduser${NC} to ${YELLOW}$newshell${NC}"
     else
         #Handle errors here
         echo "Unknown error. Code: $errorcode"
@@ -316,18 +316,18 @@ modifyuser(){
         header
         echo -e "[${PURPLE}Main menu${NC}] > [${PURPLE}User management${NC}] > [${PURPLE}Modify user${NC}]"
         echo 
-        echo -e "Currently modifying user: ${RED}$selecteduser${NC}"
+        echo -e "Currently modifying user: ${YELLOW}$selecteduser${NC}"
         echo 
         echo -e "What do you want to do?"
         echo
-        echo -e "[${RED}u${NC}] - Change username. "
-        echo -e "[${RED}p${NC}] - Change password. "
-        echo -e "[${RED}i${NC}] - Change user id. "
-        echo -e "[${RED}g${NC}] - Change primary group. "
-        echo -e "[${RED}c${NC}] - Edit comment. "
-        echo -e "[${RED}d${NC}] - Change home directory. "
-        echo -e "[${RED}s${NC}] - Change shell. "
-        echo -e "[${RED}e${NC}] - Go back. "
+        echo -e "[${YELLOW}u${NC}] - Change username. "
+        echo -e "[${YELLOW}p${NC}] - Change password. "
+        echo -e "[${YELLOW}i${NC}] - Change user id. "
+        echo -e "[${YELLOW}g${NC}] - Change primary group. "
+        echo -e "[${YELLOW}c${NC}] - Edit comment. "
+        echo -e "[${YELLOW}d${NC}] - Change home directory. "
+        echo -e "[${YELLOW}s${NC}] - Change shell. "
+        echo -e "[${YELLOW}e${NC}] - Go back. "
         read -rsn1 -p '> ' selection
 
         #Change username
@@ -338,12 +338,12 @@ modifyuser(){
             usermod -l $newusername $selecteduser &> /dev/null
             errorcode=$?
             if [[ $errorcode -eq 0 ]]; then
-                echo -e "Changed username form ${RED}$selecteduser${NC} to ${RED}$newusername${NC}. "
+                echo -e "Changed username form ${YELLOW}$selecteduser${NC} to ${YELLOW}$newusername${NC}. "
                 selecteduser=$newusername
             else
             echo "Unable to change username:"
                 if [[ $errorcode -eq 9 ]]; then
-                    echo -e "  Username ${RED}$newusername${NC} is ocupided. "
+                    echo -e "  Username ${YELLOW}$newusername${NC} is ocupided. "
                 else
                     echo "  Unknown error. Code: $errorcode"
                 fi
@@ -351,7 +351,7 @@ modifyuser(){
         # Change password
         elif [[ "$selection" == "p" ]]; then
             header
-            echo "Changing password for: ${RED}$selecteduser${NC}"
+            echo "Changing password for: ${YELLOW}$selecteduser${NC}"
             echo
             passwd $selecteduser 
         # Change user ID
@@ -364,11 +364,11 @@ modifyuser(){
             usermod -g "$newgroup" $selecteduser  &> /dev/null
             errorcode=$?
             if [[ $errorcode -eq 0 ]]; then
-                echo -e "Switched primary group for ${RED}$selecteduser${NC} to ${RED}$newgroup${NC}."
+                echo -e "Switched primary group for ${YELLOW}$selecteduser${NC} to ${YELLOW}$newgroup${NC}."
             else
                 echo "Unable to change primary group:"
                 if [[ $errorcode -eq 6 ]]; then
-                    echo -e "  Group ${RED}$newgroup${NC} does not exist. "
+                    echo -e "  Group ${YELLOW}$newgroup${NC} does not exist. "
                 else
                     echo "  Unknown error. Code: $errorcode"
                 fi
@@ -382,7 +382,7 @@ modifyuser(){
             usermod -c "$newcomment" $selecteduser &> /dev/null
             errorcode=$?
             if [[ $errorcode -eq 0 ]]; then
-                echo -e "Set comment for ${RED}$selecteduser${NC} to ${RED}$newcomment${NC}"
+                echo -e "Set comment for ${YELLOW}$selecteduser${NC} to ${YELLOW}$newcomment${NC}"
             else
                 #Handle errors here
                 echo "Unknown error. Code: $errorcode"
@@ -431,12 +431,12 @@ usermanage(){
         echo
         echo -e "What do you want to do?"
         echo
-        echo -e "[${RED}a${NC}] - Add user. "
-        echo -e "[${RED}l${NC}] - List login-users. "
-        echo -e "[${RED}p${NC}] - Display user properties. "
-        echo -e "[${RED}m${NC}] - Modify user. "
-        echo -e "[${RED}d${NC}] - Delete user. "
-        echo -e "[${RED}e${NC}] - Go back. "
+        echo -e "[${YELLOW}a${NC}] - Add user. "
+        echo -e "[${YELLOW}l${NC}] - List login-users. "
+        echo -e "[${YELLOW}p${NC}] - Display user properties. "
+        echo -e "[${YELLOW}m${NC}] - Modify user. "
+        echo -e "[${YELLOW}d${NC}] - Delete user. "
+        echo -e "[${YELLOW}e${NC}] - Go back. "
 
         getusers
 
@@ -445,9 +445,9 @@ usermanage(){
         #list users
         if [[ "$selection" == "l" ]]; then
             header
-            echo -e "${RED}Users:${NC}"
+            echo -e "${YELLOW}Users:${NC}"
             for user in ${users[@]}; do
-                echo -e "    ${LIGHTRED}$user${NC}"
+                echo -e "    ${CYAN}$user${NC}"
             done
             read -p "Press enter to continue..." temp
         #User properties
@@ -505,7 +505,7 @@ usermanage(){
 
 # Delete $selectedgroup
 deletegroup(){
-    echo -e "Are you sure you want to delete the group: ${RED}$selectedgroup${NC}?[y/n]"
+    echo -e "Are you sure you want to delete the group: ${YELLOW}$selectedgroup${NC}?[y/n]"
     yesno
     if [[ $? -eq 1 ]]; then
         echo "Deleting group: $selectedgroup ..."
@@ -551,9 +551,9 @@ listusersingroup(){
     usersingroup=( $( cat /etc/passwd | sed 'y/:/ /' | awk -v "gid=$groupid" '$4 == gid {print $0}' | cut -d " " -f 1 ) )
     usersingroup+=( $( cat /etc/group | awk "/$selectedgroup:/ {print}" | cut -d ":" -f 4 | sed 'y/,/ /' ) )
     
-    echo -e "Users in group ${RED}$selectedgroup${NC}:"
+    echo -e "Users in group ${YELLOW}$selectedgroup${NC}:"
     for user in ${usersingroup[@]}; do
-        echo -e "    ${LIGHTRED}$user${NC}"
+        echo -e "    ${CYAN}$user${NC}"
     done
     echo
 }
@@ -606,13 +606,13 @@ groupmanage(){
         echo 
         echo -e "What do you want to do?"
         echo
-        echo -e "[${RED}c${NC}] - Ceate new group. "
-        echo -e "[${RED}l${NC}] - List all groups, not system groups. "
-        echo -e "[${RED}v${NC}] - List all users in a group. "
-        echo -e "[${RED}a${NC}] - Add user to group. "
-        echo -e "[${RED}r${NC}] - Remove user from group. "
-        echo -e "[${RED}d${NC}] - Delete group. "
-        echo -e "[${RED}e${NC}] - Go back. "
+        echo -e "[${YELLOW}c${NC}] - Ceate new group. "
+        echo -e "[${YELLOW}l${NC}] - List all groups, not system groups. "
+        echo -e "[${YELLOW}v${NC}] - List all users in a group. "
+        echo -e "[${YELLOW}a${NC}] - Add user to group. "
+        echo -e "[${YELLOW}r${NC}] - Remove user from group. "
+        echo -e "[${YELLOW}d${NC}] - Delete group. "
+        echo -e "[${YELLOW}e${NC}] - Go back. "
 
         getusers
         getgroups
@@ -625,9 +625,9 @@ groupmanage(){
         #List all groups
         elif [[ "$selection" == "l" ]]; then
             header
-            echo -e "${RED}Groups:${NC}"
+            echo -e "${YELLOW}Groups:${NC}"
             for group in ${groups[@]}; do
-                echo -e "    ${LIGHTRED}$group${NC}"
+                echo -e "    ${CYAN}$group${NC}"
             done 
         #List all users in a group
         elif [[ "$selection" == "v" ]]; then
@@ -674,7 +674,7 @@ selectdir(){
     header
         dirs=( $(ls -la "$1" | egrep "^d" | awk '{print $9}') )
         for (( i=0; i < ${#dirs[@]}; i++ )); do
-            echo -e "[${RED}$i${NC}] - ${dirs[i]}" | sed "s/ [.][.]$/ Parent directory/" | sed "s/ [.]$/ This directory/"
+            echo -e "[${YELLOW}$i${NC}] - ${dirs[i]}" | sed "s/ [.][.]$/ Parent directory/" | sed "s/ [.]$/ This directory/"
         done
         re='^[0-9]+$'
         read -p 'Select directory: ' selecteddir
@@ -694,8 +694,6 @@ selectdir(){
 # Params
 # 1: directory
 listdirattr(){
-    header
-    selectdir "$1"
     header
     ownerperms=( )
     groupperms=( )
@@ -752,19 +750,19 @@ listdirattr(){
             otherperms+=( "Execute" )
         fi
     fi
-    echo -e "Listing propertiers for: ${RED}$( readlink -f $selecteddir )${NC}"
+    echo -e "Listing propertiers for: ${YELLOW}$( readlink -f $selecteddir )${NC}"
     echo
-    echo -e "${RED}Owner:${NC}          $( ls -ld "$selecteddir" | awk "{print \$3}" )"
-    echo -e "${RED}Group:${NC}          $( ls -ld "$selecteddir" | awk "{print \$4}" )"
-    echo -e "${RED}Last modified:${NC}  $( ls -ld "$selecteddir" | awk "{print \$6,\$7,\$8}" )"
+    echo -e "${YELLOW}Owner:${NC}          $( ls -ld "$selecteddir" | awk "{print \$3}" )"
+    echo -e "${YELLOW}Group:${NC}          $( ls -ld "$selecteddir" | awk "{print \$4}" )"
+    echo -e "${YELLOW}Last modified:${NC}  $( ls -ld "$selecteddir" | awk "{print \$6,\$7,\$8}" )"
     echo
     echo -e "Permissions: "
-    echo -e "  ${RED}Owner:${NC}   ${ownerperms[@]}"
-    echo -e "  ${RED}Group:${NC}  ${groupperms[@]}"
-    echo -e "  ${RED}Other:${NC}  ${otherperms[@]}"
-    echo -e "  ${RED}Setuid:${NC} $setuid"
-    echo -e "  ${RED}Setgid:${NC} $setgid"
-    echo -e "  ${RED}Sticky:${NC} $sticky"
+    echo -e "  ${YELLOW}Owner:${NC}   ${ownerperms[@]}"
+    echo -e "  ${YELLOW}Group:${NC}  ${groupperms[@]}"
+    echo -e "  ${YELLOW}Other:${NC}  ${otherperms[@]}"
+    echo -e "  ${YELLOW}Setuid:${NC} $setuid"
+    echo -e "  ${YELLOW}Setgid:${NC} $setgid"
+    echo -e "  ${YELLOW}Sticky:${NC} $sticky"
     read -p "Press enter to continue..." temp
 }
 
@@ -774,24 +772,24 @@ dirmanage(){
         header
         echo -e "[${PURPLE}Main menu${NC}] > [${PURPLE}Directory management${NC}]"
         echo
-        echo -e "You are currently in ${RED}$PWD${NC}"
+        echo -e "You are currently in ${YELLOW}$PWD${NC}"
         echo
         echo "What do you want to do?"
         echo
-        echo -e "[${RED}w${NC}] - Change working directory. "
-        echo -e "[${RED}v${NC}] - View directory properties. "
-        echo -e "[${RED}c${NC}] - Create Directory. "
-        echo -e "[${RED}l${NC}] - List Directory content. "
-        echo -e "[${RED}a${NC}] - Change attribute of directory. "
-        echo -e "[${RED}d${NC}] - Delete Directory. "
-        echo -e "[${RED}e${NC}] - Go back"
+        echo -e "[${YELLOW}w${NC}] - Change working directory. "
+        echo -e "[${YELLOW}v${NC}] - View directory properties. "
+        echo -e "[${YELLOW}c${NC}] - Create Directory. "
+        echo -e "[${YELLOW}l${NC}] - List Directory content. "
+        echo -e "[${YELLOW}a${NC}] - Change attribute of directory. "
+        echo -e "[${YELLOW}d${NC}] - Delete Directory. "
+        echo -e "[${YELLOW}e${NC}] - Go back"
         echo
         read -rsn1 -p '> ' selection
 
         #Create new Directory
         if [[ "$selection" == "c" ]]; then
-            echo -n "Enter new directory name to create> "
-            read dirname
+            header
+            read -p "Enter new directory name to create: " dirname
             mkdir $dirname &> /dev/null
             errorcode=$?
             if [[ $errorcode -eq 0 ]]; then
@@ -799,7 +797,7 @@ dirmanage(){
             else
                 echo "Failed to create Directory!"
             fi
-            read -p "Press enter to continue>" temp
+            read -p "Press enter to continue..." temp
         # Change working directory
         elif  [[ "$selection" == "w" ]]; then
             selectdir "$PWD"
@@ -807,21 +805,19 @@ dirmanage(){
         # View directory attributs
         elif  [[ "$selection" == "v" ]]; then
             listdirattr "$PWD"
-
         #List Directory content
         elif  [[ "$selection" == "l" ]]; then
-            selectdir "$PWD"
-            ls -la $selecteddir 2> /dev/null
+            header
+            echo -e "Content of: ${YELLOW}$PWD${NC}"
+            echo
+            ls -1oghF --si --time-style=+"%Y-%m-%d %T" --color=auto $PWD
             errorcode=$?
             if [[ $errorcode -eq 0 ]]; then
-                echo " $selecteddir content: "
-            elif [[ $errorcode -eq 1 ]]; then
-                echo "Failed to list content of Directory"
-                echo "Operation not permitted"
+                echo
             else
                 echo "Failed to list content of Directory"
             fi
-            read -p "Press enter to continue>" temp
+            read -p "Press enter to continue..." temp
             
         #Change attribute of Directory 
         elif [[ "$selection" == "a" ]]; then
@@ -829,14 +825,16 @@ dirmanage(){
                 header
                 echo -e "[${PURPLE}Main menu${NC}] > [${PURPLE}Directory management${NC}] > [${PURPLE}Attribute manager${NC}]"
                 echo
+                echo -e "You are currently modifying: ${YELLOW}$PWD${NC}"
+                echo
                 echo "What do you want to change?"
                 echo
-                echo -e "[${RED}o${NC}] - Owner of directory"
-                echo -e "[${RED}g${NC}] - Group of directory"
-                echo -e "[${RED}p${NC}] - Permissions of Directory"
-                echo -e "[${RED}t${NC}] - Sticky bit"
-                echo -e "[${RED}s${NC}] - Setgid"
-                echo -e "[${RED}e${NC}] - Go back"
+                echo -e "[${YELLOW}o${NC}] - Owner of directory"
+                echo -e "[${YELLOW}g${NC}] - Group of directory"
+                echo -e "[${YELLOW}p${NC}] - Permissions of Directory"
+                echo -e "[${YELLOW}t${NC}] - Toggle sticky bit"
+                echo -e "[${YELLOW}s${NC}] - Toggle setgid"
+                echo -e "[${YELLOW}e${NC}] - Go back"
                 echo
                 read -rsn1 -p '> ' selection
 
@@ -844,8 +842,7 @@ dirmanage(){
                 if [[ "$selection" == "o" ]]; then
                     getusers
                     selectuser
-                    selectdir $PWD
-                    chown $selecteduser $selecteddir &> /dev/null
+                    chown $selecteduser $PWD &> /dev/null
                     errorcode=$?
                     if [[ $errorcode -eq 0 ]]; then
                         echo "Ownership changed!"
@@ -858,8 +855,7 @@ dirmanage(){
                 elif [[ "$selection" == "g" ]]; then
                     getgroups 
                     selectgroup 
-                    selectdir $PWD
-                    chown :$selectedgroup $selecteddir &> /dev/null
+                    chown :$selectedgroup $PWD &> /dev/null
                     errorcode=$?
                     if [[ $errorcode -eq 0 ]]; then
                         echo "Group changed!"
@@ -870,22 +866,21 @@ dirmanage(){
 
                 #Change permissions of Directory
                 elif [[ "$selection" == "p" ]]; then
-                    selectdir $PWD
                     echo "Change permissions:"
-                    echo "for:"
-                    echo "No permissions         = 0"
-                    echo "Execute only           = 1"
-                    echo "Write only             = 2"
-                    echo "Read only              = 4"
-                    echo "Read & Execute         = 5"
-                    echo "Read & Write           = 6"
-                    echo "Read, Write & Execute  = 7"
+
+                    echo "[0] - No permissions."
+                    echo "[1] - Execute only"
+                    echo "[2] - Write only"
+                    echo "[4] - Read only"
+                    echo "[5] - Read & Execute"
+                    echo "[6] - Read & Write"
+                    echo "[7] - Read, Write & Execute"
                     echo
                     echo "Please enter permissions as a number for:"
                     # Owner
                     while true; do
-                        echo -n "Owner/user> "
-                        read owner
+                        echo -n ""
+                        read -rsn1 -p "Owner: " owner
                         re='^[0-9]+$'
                         if [[ $owner =~ $re ]]; then
                             if [[ $owner -gt -1 && $owner -lt 8 && $owner -ne 3 ]]; then
@@ -897,8 +892,7 @@ dirmanage(){
 
                     # Group
                     while true; do
-                    echo -n "Group> "
-                    read group
+                    read -rsn1 -p "Group: " group
                     re='^[0-9]+$'
                         if [[ $group =~ $re ]]; then
                             if [[ $group -gt -1 && $group -lt 8 && $group -ne 3 ]]; then
@@ -910,8 +904,7 @@ dirmanage(){
 
                     # Other
                     while true; do
-                    echo -n "Others> "
-                    read others
+                    read -rsn1 -p "Others: " others
                     re='^[0-9]+$'
                         if [[ $others =~ $re ]]; then
                             if [[ $others -gt -1 && $others -lt 8 && $others -ne 3 ]]; then
@@ -921,74 +914,60 @@ dirmanage(){
                         echo "Inncorrect input"
                     done
                     
-                    chmod $owner$group$others $selecteddir &> /dev/null
+                    chmod $owner$group$others $PWD &> /dev/null
                     errorcode=$?
                     if [[ $errorcode -eq 0 ]]; then
                         echo "Permissions changed!"
                     else
                         echo "Failed to change permissions!"
                     fi
-                    read -p "Press enter to continue>" temp
+                    read -p "Press enter to continue..." temp
 
                 #Sticky bit
                 elif [[ "$selection" == "t" ]]; then
-                    selectdir $PWD
-                    echo "For Sticky bit: on input: 1"
-                    echo "For Sticky bit: off input: 2"
-                    echo -n "> "
-                    read choice
-
-                    #Set Sticky bit
-                    if [[ "$choice" == "1" ]]; then
-                        chmod +t $selecteddir &> /dev/null
+                    perms=$( ls -ld "$PWD" | awk "{print \$1}" )
+                    re='[t|T]'
+                    if [[ $( echo $perms | cut -b 10 ) =~ $re ]]; then
+                        chmod -t $PWD &> /dev/null
                         errorcode=$?
                         if [[ $errorcode -eq 0 ]]; then
-                            echo "Sticky bit for $selecteddir: on"
-                        else
-                            echo "Failed to set Sticky bit!"
-                        fi
-
-                    #Remove Sticky bit
-                    elif [[ "$choice" == "2" ]]; then
-                        chmod -t $selecteddir &> /dev/null
-                        errorcode=$?
-                        if  [[ $errorcode -eq 0 ]]; then
-                            echo "Sticky bit for $selecteddir: off"
-                        else
-                            echo "Failed to remove Sticky bit!"
-                        fi
-                    fi
-                    read -p "Press enter to continue>" temp
-
-                #Setgid
-                elif [[ "$selection" == "s" ]]; then
-                    selectdir $PWD
-                    echo "For Setgid: on input: 1"
-                    echo "For Setgid: off input: 2"
-                    echo -n "> "
-                    read choice
-
-                    #Set Setgid
-                    if [[ "$choice" == "1" ]]; then
-                        chmod g+s $selecteddir &> /dev/null
-                        errorcode=$?
-                        if  [[ $errorcode -eq 0 ]]; then
-                            echo "Setgid for $selecteddir: on"
-                        else
-                            echo "Failed to set Setgid!"
-                        fi
-
-                    #Remove Setgid
-                    elif [[ "$choice" == "2" ]]; then
-                        chmod g-s $selecteddir &> /dev/null
-                        errorcode=$?
-                        if [[ $errorcode -eq 0 ]]; then
-                            echo "Setgid for $selecteddir: off"
+                            echo "Sticky bit for $PWD: off"
                         else 
                             echo "Failed to remove Setgid!"
                         fi
+                    else
+                        chmod +t $PWD &> /dev/null
+                        errorcode=$?
+                        if  [[ $errorcode -eq 0 ]]; then
+                            echo "Sticky bit for $PWD: on"
+                        else
+                            echo "Failed to set Setgid!"
+                        fi
                     fi
-                    read -p "Press enter to continue>" temp
+                    read -p "Press enter to continue..." temp
+                #Setgid
+                elif [[ "$selection" == "s" ]]; then
+                    perms=$( ls -ld "$PWD" | awk "{print \$1}" )
+                    re='[s|S]'
+                    if [[ $( echo $perms | cut -b 7 ) =~ $re ]]; then
+                        chmod g-s $PWD &> /dev/null
+                        errorcode=$?
+                        if [[ $errorcode -eq 0 ]]; then
+                            echo "Setgid for $PWD: off"
+                        else 
+                            echo "Failed to remove Setgid!"
+                        fi
+                    else
+                        chmod g+s $PWD &> /dev/null
+                        errorcode=$?
+                        if  [[ $errorcode -eq 0 ]]; then
+                            echo "Setgid for $PWD: on"
+                        else
+                            echo "Failed to set Setgid!"
+                        fi
+                    fi
+                    
+                    read -p "Press enter to continue..." temp
                 elif [[ "$selection" == "e" ]]; then
                     break
 
@@ -1025,12 +1004,12 @@ packagemanager(){
         echo 
         echo -e "What do you want to do?"
         echo
-        echo -e "[${RED}u${NC}] - Update. "
-        echo -e "[${RED}s${NC}] - Search all packages. "
-        echo -e "[${RED}l${NC}] - Search installed packages. "
-        echo -e "[${RED}i${NC}] - Install package. "
-        echo -e "[${RED}r${NC}] - Remove package. "
-        echo -e "[${RED}e${NC}] - Go back."
+        echo -e "[${YELLOW}u${NC}] - Update. "
+        echo -e "[${YELLOW}s${NC}] - Search all packages. "
+        echo -e "[${YELLOW}l${NC}] - Search installed packages. "
+        echo -e "[${YELLOW}i${NC}] - Install package. "
+        echo -e "[${YELLOW}r${NC}] - Remove package. "
+        echo -e "[${YELLOW}e${NC}] - Go back."
 
         read -rsn1 -p '> ' selection
 
@@ -1038,11 +1017,11 @@ packagemanager(){
             echo "This will update all installed packages. Proceed? [y/n]"
             yesno
             if [[ $? -eq 1 ]]; then
-                echo -e "${PURPLE}System manager:${NC} ${RED}Executing command: apt update${NC}"
+                echo -e "${PURPLE}System manager:${NC} ${YELLOW}Executing command: apt update${NC}"
                 apt update
-                echo -e "${PURPLE}System manager:${NC} ${RED}Executing command: apt upgrade${NC}"
+                echo -e "${PURPLE}System manager:${NC} ${YELLOW}Executing command: apt upgrade${NC}"
                 apt upgrade
-                echo -e "${PURPLE}System manager:${NC} ${RED}Executing command: apt autoremove${NC}"
+                echo -e "${PURPLE}System manager:${NC} ${YELLOW}Executing command: apt autoremove${NC}"
                 apt autoremove
             fi
             read -p "Press enter to continue..." temp
@@ -1072,7 +1051,7 @@ packagemanager(){
             echo "Enter package name:"
             read -p '> ' packagename
             apt remvoe $packagename
-            echo -e "${PURPLE}System manager:${NC} ${RED}Executing command: apt autoremove${NC}"
+            echo -e "${PURPLE}System manager:${NC} ${YELLOW}Executing command: apt autoremove${NC}"
             apt autoremove
             read -p "Press enter to continue..." temp
         elif [[ "$selection" == "e" ]]; then
@@ -1090,12 +1069,12 @@ mainmenu(){
         echo 
         echo -e "What do you want to do?"
         echo
-        echo -e "[${RED}n${NC}] - Network information... "
-        echo -e "[${RED}u${NC}] - User management... "
-        echo -e "[${RED}g${NC}] - Group management... "
-        echo -e "[${RED}d${NC}] - Directory management... "
-        echo -e "[${RED}p${NC}] - Package manager..."
-        echo -e "[${RED}e${NC}] - Exit."
+        echo -e "[${YELLOW}n${NC}] - Network information... "
+        echo -e "[${YELLOW}u${NC}] - User management... "
+        echo -e "[${YELLOW}g${NC}] - Group management... "
+        echo -e "[${YELLOW}d${NC}] - Directory management... "
+        echo -e "[${YELLOW}p${NC}] - Package manager..."
+        echo -e "[${YELLOW}e${NC}] - Exit."
 
         read -rsn1 -p '> ' selection
 
