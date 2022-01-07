@@ -140,15 +140,15 @@ printuserprops(){
     groups=( $( cat /etc/group | grep $selecteduser | cut -d ":" -f 1 ) )
     echo -e "User properties: ${RED}$selecteduser${NC}"
     echo
-    echo -e "${RED}User name:${NC}      $( cat /etc/passwd | grep $selecteduser | cut -d ":" -f 1 )"
-    echo -e "${RED}Password:${NC}       $( cat /etc/passwd | grep $selecteduser | cut -d ":" -f 2 )"
-    echo -e "${RED}User ID:${NC}        $( cat /etc/passwd | grep $selecteduser | cut -d ":" -f 3 )"
-    echo -e "${RED}Group ID:${NC}       $( cat /etc/passwd | grep $selecteduser | cut -d ":" -f 4 )"
-    echo -e "${RED}Comment:${NC}        $( cat /etc/passwd | grep $selecteduser | cut -d ":" -f 5 )"
-    echo -e "${RED}Directory:${NC}      $( cat /etc/passwd | grep $selecteduser | cut -d ":" -f 6 )"
-    echo -e "${RED}Shell:${NC}          $( cat /etc/passwd | grep $selecteduser | cut -d ":" -f 7 )"
+    echo -e "${RED}User name:${NC}      $( cat /etc/passwd | egrep "^$selecteduser:" | cut -d ":" -f 1 )"
+    echo -e "${RED}Password:${NC}       $( cat /etc/passwd | egrep "^$selecteduser:" | cut -d ":" -f 2 )"
+    echo -e "${RED}User ID:${NC}        $( cat /etc/passwd | egrep "^$selecteduser:" | cut -d ":" -f 3 )"
+    echo -e "${RED}Group ID:${NC}       $( cat /etc/passwd | egrep "^$selecteduser:" | cut -d ":" -f 4 )"
+    echo -e "${RED}Directory:${NC}      $( cat /etc/passwd | egrep "^$selecteduser:" | cut -d ":" -f 6 )"
+    echo -e "${RED}Comment:${NC}        $( cat /etc/passwd | egrep "^$selecteduser:" | cut -d ":" -f 5 )"
+    echo -e "${RED}Shell:${NC}          $( cat /etc/passwd | egrep "^$selecteduser:" | cut -d ":" -f 7 )"
     echo
-    echo -e "Groups:  ${groups[@]}"
+    echo -e "${RED}Groups:${NC} ${groups[@]}"
 }
 
 # Delets $selecteduser
@@ -697,7 +697,7 @@ listdirattr(){
     header
     selectdir "$1"
     header
-    userperms=( )
+    ownerperms=( )
     groupperms=( )
     otherperms=( )
     setuid="No"
@@ -705,10 +705,10 @@ listdirattr(){
     sticky="No"
     perms=$( ls -ld "$selecteddir" | awk "{print \$1}" )
     if [[ $( echo $perms | cut -b 2 ) != "-" ]]; then
-        userperms+=( "Read" )
+        ownerperms+=( "Read" )
     fi
     if [[ $( echo $perms | cut -b 3 ) != "-" ]]; then
-        userperms+=( "Write" )
+        ownerperms+=( "Write" )
     fi
     if [[ $( echo $perms | cut -b 4 ) != "-" ]]; then
         re='[s|S]'
@@ -717,7 +717,7 @@ listdirattr(){
         fi
         re='[s|x]'
         if [[ $( echo $perms | cut -b 4 ) =~ $re ]]; then
-            userperms+=( "Execute" )
+            ownerperms+=( "Execute" )
         fi
     fi
     if [[ $( echo $perms | cut -b 5 ) != "-" ]]; then
@@ -740,7 +740,7 @@ listdirattr(){
         otherperms+=( "Read" )
     fi
     if [[ $( echo $perms | cut -b 9 ) != "-" ]]; then
-        userperms+=( "Write" )
+        ownerperms+=( "Write" )
     fi
     if [[ $( echo $perms | cut -b 10 ) != "-" ]]; then
         re='[t|T]'
@@ -759,7 +759,7 @@ listdirattr(){
     echo -e "${RED}Last modified:${NC}  $( ls -ld "$selecteddir" | awk "{print \$6,\$7,\$8}" )"
     echo
     echo -e "Permissions: "
-    echo -e "  ${RED}User:${NC}   ${userperms[@]}"
+    echo -e "  ${RED}Owner:${NC}   ${ownerperms[@]}"
     echo -e "  ${RED}Group:${NC}  ${groupperms[@]}"
     echo -e "  ${RED}Other:${NC}  ${otherperms[@]}"
     echo -e "  ${RED}Setuid:${NC} $setuid"
