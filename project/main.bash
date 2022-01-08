@@ -48,11 +48,26 @@ NC='\033[0m'  # No Color
 
 ##############################
 
+
+##############################
 header(){
     clear
-    echo -e "--------------------------------------------------------"
-    echo -e "                 ${YELLOW}SYSTEM MANAGER v$version${NC}"
-    echo -e "--------------------------------------------------------"
+    width=$( tput cols )
+    x=0
+    while [[ $x -lt $width ]]; do 
+        echo -n '-'; let x=$x+1 
+    done; echo;
+    #echo -e "--------------------------------------------------------"
+    x=0
+    while [[ $x -lt $(( ( $width - 21 ) / 2 )) ]]; do
+        echo -n ' '; let x=$x+1 
+    done;
+    echo -e "${YELLOW}SYSTEM MANAGER v$version${NC}"
+    #echo -e "--------------------------------------------------------"
+    x=0
+    while [[ $x -lt $width ]]; do 
+        echo -n '-'; let x=$x+1 
+    done; echo;
     echo
 }
 
@@ -434,7 +449,7 @@ usermanage(){
         echo -e "[${YELLOW}a${NC}] - Add user. "
         echo -e "[${YELLOW}l${NC}] - List login-users. "
         echo -e "[${YELLOW}p${NC}] - Display user properties. "
-        echo -e "[${YELLOW}m${NC}] - Modify user. "
+        echo -e "[${YELLOW}m${NC}] - Modify user... "
         echo -e "[${YELLOW}d${NC}] - Delete user. "
         echo -e "[${YELLOW}e${NC}] - Go back. "
 
@@ -783,7 +798,7 @@ dirmanage(){
         echo -e "[${YELLOW}c${NC}] - Create Directory. "
         echo -e "[${YELLOW}a${NC}] - Change attribute of directory... "
         echo -e "[${YELLOW}d${NC}] - Delete Directory. "
-        echo -e "[${YELLOW}e${NC}] - Go back"
+        echo -e "[${YELLOW}e${NC}] - Go back. "
         echo
         read -rsn1 -p '> ' selection
 
@@ -833,12 +848,12 @@ dirmanage(){
                 echo
                 echo "What do you want to change?"
                 echo
-                echo -e "[${YELLOW}o${NC}] - Owner of directory"
-                echo -e "[${YELLOW}g${NC}] - Group of directory"
-                echo -e "[${YELLOW}p${NC}] - Permissions of Directory"
-                echo -e "[${YELLOW}t${NC}] - Toggle sticky bit"
-                echo -e "[${YELLOW}s${NC}] - Toggle setgid"
-                echo -e "[${YELLOW}e${NC}] - Go back"
+                echo -e "[${YELLOW}o${NC}] - Change directory owner. "
+                echo -e "[${YELLOW}g${NC}] - Change directory group. "
+                echo -e "[${YELLOW}p${NC}] - Permissions of Directory. "
+                echo -e "[${YELLOW}t${NC}] - Toggle sticky bit. "
+                echo -e "[${YELLOW}s${NC}] - Toggle setgid. "
+                echo -e "[${YELLOW}e${NC}] - Go back. "
                 echo
                 read -rsn1 -p '> ' selection
 
@@ -1073,7 +1088,7 @@ mainmenu(){
         echo 
         echo -e "What do you want to do?"
         echo
-        echo -e "[${YELLOW}n${NC}] - Network information... "
+        echo -e "[${YELLOW}n${NC}] - Network information. "
         echo -e "[${YELLOW}u${NC}] - User management... "
         echo -e "[${YELLOW}g${NC}] - Group management... "
         echo -e "[${YELLOW}d${NC}] - Directory management... "
